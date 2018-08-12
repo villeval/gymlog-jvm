@@ -1,0 +1,23 @@
+[
+    {
+      "id": 1,
+      "userId": "Ville123",
+      "weight": 100,
+      "exercise": "Squat",
+      "reps": 6
+    },
+    {
+      "id": 2,
+      "userId": "Ville123",
+      "weight": 100,
+      "exercise": "Squat",
+      "reps": 6
+    },
+    {
+      "id": 3,
+      "userId": "Ville123",
+      "weight": 100,
+      "exercise": "Squat",
+      "reps": 6
+    }
+]
