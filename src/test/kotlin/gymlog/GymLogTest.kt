@@ -15,6 +15,7 @@ import org.springframework.test.context.junit4.SpringRunner
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import utils.TestUtils
+import java.sql.Timestamp
 import kotlin.test.assertEquals
 
 @RunWith(SpringRunner::class)
@@ -28,9 +29,9 @@ class GymLogTest {
     private var setsDatabase: SetsDatabase? = null
 
     private val mockSets = listOf(
-            Set(1, "Ville123", 100, "Squat", 6),
-            Set(2, "Ville123", 100, "Squat", 6),
-            Set(3, "Ville123", 100, "Squat", 6)
+            Set("1", "Ville123", 100.0, "Squat", 6, Timestamp(System.currentTimeMillis())),
+            Set("2", "Ville123", 100.0, "Squat", 6, Timestamp(System.currentTimeMillis())),
+            Set("3", "Ville123", 100.0, "Squat", 6, Timestamp(System.currentTimeMillis()))
     )
 
     @Ignore

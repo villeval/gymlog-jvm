@@ -1,24 +1,29 @@
 package gymlog.models
 
+import java.sql.Timestamp
+
 class Set() {
-    var id: Long = 0
+    lateinit var id: String
     lateinit var userId: String
-    var weight: Int = 0
+    var weight: Double = 0.0
     lateinit var exercise: String
     var reps: Int = 0
+    lateinit var lastModifiedDate: Timestamp
 
     constructor(
-        id: Long,
+        id: String,
         userId: String,
-        weight: Int,
+        weight: Double,
         exercise: String,
-        reps: Int) : this() {
+        reps: Int,
+        lastModifiedDate: Timestamp
+    ) : this() {
 
         this.id = id
         this.userId = userId
         this.weight = weight
         this.exercise = exercise
         this.reps = reps
-
+        this.lastModifiedDate = lastModifiedDate
     }
 }
