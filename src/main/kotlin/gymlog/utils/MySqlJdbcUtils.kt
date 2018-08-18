@@ -1,4 +1,4 @@
-package gymlog.implementations
+package gymlog.utils
 
 import java.sql.*
 import java.util.Properties

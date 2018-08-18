@@ -3,6 +3,7 @@ package gymlog.implementations
 import gymlog.models.InputSet
 import gymlog.models.Set
 import gymlog.models.Sets
+import gymlog.utils.MySQLJDBCUtil
 import java.sql.*
 
 object SetsDatabase {
