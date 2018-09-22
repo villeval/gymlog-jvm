@@ -5,6 +5,7 @@ import gymlog.models.Set
 import gymlog.models.Sets
 import gymlog.utils.MySQLJDBCUtil
 import java.sql.*
+import javax.sql.DataSource
 
 object SetsDatabase {
 
@@ -13,64 +14,39 @@ object SetsDatabase {
     private const val deleteSet = "DELETE FROM SETS WHERE ID = ? AND USERID = ?"
     private const val updateSet = "UPDATE SETS SET WEIGHT = ?, EXERCISE = ?, REPS = ?, LASTMODIFIEDDATE = ? WHERE ID = ? AND USERID = ?"
 
-    fun getSets(userId: String, skip: Int, limit: Int): Sets {
-        var preparedStatement: PreparedStatement? = null
-        val listOfSets = mutableListOf<Set>()
-        var conn: Connection? = null
+    fun getSets(dataSource: DataSource, userId: String, skip: Int, limit: Int): Sets {
+        val params = mapOf(
+                1 to userId,
+                2 to skip,
+                3 to limit
+        )
 
-        try {
-            conn = MySQLJDBCUtil.getConnection()
-            preparedStatement = conn!!.prepareStatement(selectSetsWithUserId)
-            preparedStatement!!.setString(1, userId)
-            preparedStatement.setInt(2, skip)
-            preparedStatement.setInt(3, limit)
-            println(preparedStatement)
-
-            val resultSet = preparedStatement.executeQuery()
-
-            while (resultSet.next()) {
-                listOfSets.add(Set(
-                        resultSet.getString(1),
-                        resultSet.getString(2),
-                        resultSet.getDouble(3),
-                        resultSet.getString(4),
-                        resultSet.getInt(5),
-                        resultSet.getTimestamp(6)
-                ))
-            }
-        } catch (ex: SQLException) {
-            ex.printStackTrace()
-        } finally {
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close()
-                } catch (sqlEx: SQLException) {
-                }
-            }
-
-            if (conn != null) {
-                try {
-                    conn.close()
-                } catch (ex: Exception) {
-                    ex.printStackTrace()
-                }
-            }
-        }
+        val results = MySQLJDBCUtil.getResults(dataSource, selectSetsWithUserId, params)
         return Sets(
-                total = listOfSets.size,
+                total = results.size,
                 skip = skip,
                 limit = limit,
-                sets = listOfSets
+                sets = results.map { row ->
+                    println(row)
+                    Set(
+                            id = row["ID"] as String,
+                            userId = row["USERID"] as String,
+                            weight = row["WEIGHT"] as Double,
+                            exercise = row["EXERCISE"] as String,
+                            reps = row["REPS"] as Int,
+                            lastModifiedDate = row["LASTMODIFIEDDATE"] as Timestamp
+                    )
+                }
         )
     }
 
-    fun addSet(userId: String, inputSet: InputSet): Boolean {
+    fun addSet(dataSource: DataSource, userId: String, inputSet: InputSet): Boolean {
         var preparedStatement: PreparedStatement? = null
         var conn: Connection? = null
 
         try {
-            conn = MySQLJDBCUtil.getConnection()
-            preparedStatement = conn!!.prepareStatement(insertSet)
+            conn = MySQLJDBCUtil.getConnection(dataSource)
+            preparedStatement = conn.prepareStatement(insertSet)
             preparedStatement.setString(1, System.nanoTime().toString())
             preparedStatement.setString(2, userId)
             preparedStatement.setDouble(3, inputSet.weight)
@@ -103,13 +79,13 @@ object SetsDatabase {
         return true
     }
 
-    fun deleteSet(setId: String, userId: String): Boolean {
+    fun deleteSet(dataSource: DataSource, setId: String, userId: String): Boolean {
         var preparedStatement: PreparedStatement? = null
         var conn: Connection? = null
 
         try {
-            conn = MySQLJDBCUtil.getConnection()
-            preparedStatement = conn!!.prepareStatement(deleteSet)
+            conn = MySQLJDBCUtil.getConnection(dataSource)
+            preparedStatement = conn.prepareStatement(deleteSet)
             preparedStatement.setString(1, setId)
             preparedStatement.setString(2, userId)
             println(preparedStatement)
@@ -138,13 +114,13 @@ object SetsDatabase {
         return true
     }
 
-    fun updateSet(setId: String, userId: String, inputSet: InputSet): Boolean {
+    fun updateSet(dataSource: DataSource, setId: String, userId: String, inputSet: InputSet): Boolean {
         var preparedStatement: PreparedStatement? = null
         var conn: Connection? = null
 
         try {
-            conn = MySQLJDBCUtil.getConnection()
-            preparedStatement = conn!!.prepareStatement(updateSet)
+            conn = MySQLJDBCUtil.getConnection(dataSource)
+            preparedStatement = conn.prepareStatement(updateSet)
             preparedStatement.setDouble(1, inputSet.weight)
             preparedStatement.setString(2, inputSet.exercise)
             preparedStatement.setInt(3, inputSet.reps)

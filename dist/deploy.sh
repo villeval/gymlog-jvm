@@ -12,6 +12,6 @@ FULL_IMAGE_NAME=$DOCKER_REGISTRY:$DOCKER_REGISTRY_PORT/$IMAGE_NAME:$IMAGE_VERSIO
 docker pull $FULL_IMAGE_NAME
 
 if docker service ls | grep $IMAGE_NAME;
-        then docker service update --image $FULL_IMAGE_NAME $IMAGE_NAME
-        else docker service create -d -p $EXPOSED_PORT:$EXPOSED_PORT --mode global --name $IMAGE_NAME $FULL_IMAGE_NAME
+        then docker service update --health-cmd="wget --spider http://localhost:8081/api/heartbeat || exit 1" --health-start-period=20s --health-timeout=10s --health-interval=10s --health-retries=3 --image $FULL_IMAGE_NAME $IMAGE_NAME
+        else docker service create -d -p $EXPOSED_PORT:$EXPOSED_PORT --health-cmd="wget --spider http://localhost:8081/api/heartbeat || exit 1" --health-start-period=20s --health-timeout=10s --health-interval=10s --health-retries=3 --mode global --name $IMAGE_NAME $FULL_IMAGE_NAME
 fi

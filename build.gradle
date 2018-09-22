@@ -55,6 +55,8 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
     compile group: 'mysql', name: 'mysql-connector-java', version: '8.0.12'
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    compile "org.springframework.boot:spring-boot-starter-jdbc"
 
     testCompile "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
     testCompile "org.springframework.boot:spring-boot-starter-test"
