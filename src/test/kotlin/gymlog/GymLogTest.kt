@@ -1,12 +1,11 @@
 package gymlog
 
-import gymlog.controllers.GymLogController
-import gymlog.implementations.SetsDatabase
+import gymlog.interfaces.SetsInterface
+import gymlog.services.SetsDatabase
 import gymlog.models.Set
 import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.mock.mockito.MockBean
@@ -19,7 +18,7 @@ import java.sql.Timestamp
 import kotlin.test.assertEquals
 
 @RunWith(SpringRunner::class)
-@WebMvcTest(value = [(GymLogController::class)], secure = false)
+@WebMvcTest(value = [(SetsInterface::class)], secure = false)
 class GymLogTest {
 
     @Autowired
