@@ -5,7 +5,7 @@ import javax.sql.DataSource
 
 object MySQLJDBCUtil {
 
-    fun getResults(dataSource: DataSource, query: String, params: Map<Int, Any>): List<Map<*,*>> {
+    fun doQuery(dataSource: DataSource, query: String, params: Map<Int, Any>): List<Map<*,*>> {
         val results = mutableListOf<MutableMap<String, Any?>>()
         val connection = MySQLJDBCUtil.getConnection(dataSource)
 

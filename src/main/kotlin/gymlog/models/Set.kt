@@ -13,8 +13,8 @@ class Set() {
     constructor(
         id: String,
         userId: String,
-        weight: Double,
         exercise: String,
+        weight: Double,
         reps: Int,
         lastModifiedDate: Timestamp
     ) : this() {

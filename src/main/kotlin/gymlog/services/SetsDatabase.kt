@@ -5,14 +5,15 @@ import gymlog.models.Set
 import gymlog.models.Sets
 import gymlog.utils.MySQLJDBCUtil
 import java.sql.*
+import java.time.LocalDateTime
 import javax.sql.DataSource
 
 object SetsDatabase {
 
-    private const val selectSetsWithUserId = "SELECT * FROM SETS WHERE USERID LIKE ? LIMIT ?, ?"
-    private const val insertSet = "INSERT INTO SETS VALUES (?,?,?,?,?,?)"
-    private const val deleteSet = "DELETE FROM SETS WHERE ID = ? AND USERID = ?"
-    private const val updateSet = "UPDATE SETS SET WEIGHT = ?, EXERCISE = ?, REPS = ?, LASTMODIFIEDDATE = ? WHERE ID = ? AND USERID = ?"
+    private const val getSetsQuery = "SELECT * FROM SETS WHERE USERID LIKE ? LIMIT ?, ?"
+    private const val insertSetQuery = "INSERT INTO SETS VALUES (?,?,?,?,?,?)"
+    private const val deleteSetQuery = "DELETE FROM SETS WHERE ID = ? AND USERID = ?"
+    private const val updateSetQuery = "UPDATE SETS SET EXERCISE = ?, WEIGHT = ?, REPS = ?, LASTMODIFIEDDATE = ? WHERE ID = ? AND USERID = ?"
 
     fun getSets(dataSource: DataSource, userId: String, skip: Int, limit: Int): Sets {
         val params = mapOf(
@@ -21,7 +22,7 @@ object SetsDatabase {
                 3 to limit
         )
 
-        val results = MySQLJDBCUtil.getResults(dataSource, selectSetsWithUserId, params)
+        val results = MySQLJDBCUtil.doQuery(dataSource, getSetsQuery, params)
         return Sets(
                 total = results.size,
                 skip = skip,
@@ -41,115 +42,43 @@ object SetsDatabase {
     }
 
     fun addSet(dataSource: DataSource, userId: String, inputSet: InputSet): Boolean {
-        var preparedStatement: PreparedStatement? = null
-        var conn: Connection? = null
+        val params = mapOf(
+                1 to System.nanoTime(),
+                2 to userId,
+                3 to inputSet.exercise,
+                4 to inputSet.weight,
+                5 to inputSet.reps,
+                6 to LocalDateTime.now()
+        )
 
-        try {
-            conn = MySQLJDBCUtil.getConnection(dataSource)
-            preparedStatement = conn.prepareStatement(insertSet)
-            preparedStatement.setString(1, System.nanoTime().toString())
-            preparedStatement.setString(2, userId)
-            preparedStatement.setDouble(3, inputSet.weight)
-            preparedStatement.setString(4, inputSet.exercise)
-            preparedStatement.setInt(5, inputSet.reps)
-            preparedStatement.setTimestamp(6, Timestamp(System.currentTimeMillis()))
-            println(preparedStatement)
-
-            val resultSet = preparedStatement.executeUpdate()
-            println(resultSet)
-
-        } catch (ex: SQLException) {
-            ex.printStackTrace()
-        } finally {
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close()
-                } catch (sqlEx: SQLException) {
-                }
-            }
-
-            if (conn != null) {
-                try {
-                    conn.close()
-                } catch (ex: Exception) {
-                    ex.printStackTrace()
-                }
-            }
-        }
+        val results = MySQLJDBCUtil.doQuery(dataSource, insertSetQuery, params)
+        println(results)
         return true
     }
 
     fun deleteSet(dataSource: DataSource, setId: String, userId: String): Boolean {
-        var preparedStatement: PreparedStatement? = null
-        var conn: Connection? = null
+        val params = mapOf(
+                1 to setId,
+                2 to userId
+        )
 
-        try {
-            conn = MySQLJDBCUtil.getConnection(dataSource)
-            preparedStatement = conn.prepareStatement(deleteSet)
-            preparedStatement.setString(1, setId)
-            preparedStatement.setString(2, userId)
-            println(preparedStatement)
-
-            val resultSet = preparedStatement.executeUpdate()
-            println(resultSet)
-
-        } catch (ex: SQLException) {
-            ex.printStackTrace()
-        } finally {
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close()
-                } catch (sqlEx: SQLException) {
-                }
-            }
-
-            if (conn != null) {
-                try {
-                    conn.close()
-                } catch (ex: Exception) {
-                    ex.printStackTrace()
-                }
-            }
-        }
+        val results = MySQLJDBCUtil.doQuery(dataSource, deleteSetQuery, params)
+        println(results)
         return true
     }
 
     fun updateSet(dataSource: DataSource, setId: String, userId: String, inputSet: InputSet): Boolean {
-        var preparedStatement: PreparedStatement? = null
-        var conn: Connection? = null
+        val params = mapOf(
+                1 to inputSet.exercise,
+                2 to inputSet.weight,
+                3 to inputSet.reps,
+                4 to LocalDateTime.now(),
+                5 to setId,
+                6 to userId
+        )
 
-        try {
-            conn = MySQLJDBCUtil.getConnection(dataSource)
-            preparedStatement = conn.prepareStatement(updateSet)
-            preparedStatement.setDouble(1, inputSet.weight)
-            preparedStatement.setString(2, inputSet.exercise)
-            preparedStatement.setInt(3, inputSet.reps)
-            preparedStatement.setTimestamp(4, Timestamp(System.currentTimeMillis()))
-            preparedStatement.setString(5, setId)
-            preparedStatement.setString(6, userId)
-            println(preparedStatement)
-
-            val resultSet = preparedStatement.executeUpdate()
-            println(resultSet)
-
-        } catch (ex: SQLException) {
-            ex.printStackTrace()
-        } finally {
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close()
-                } catch (sqlEx: SQLException) {
-                }
-            }
-
-            if (conn != null) {
-                try {
-                    conn.close()
-                } catch (ex: Exception) {
-                    ex.printStackTrace()
-                }
-            }
-        }
+        val results = MySQLJDBCUtil.doQuery(dataSource, updateSetQuery, params)
+        println(results)
         return true
     }
 }
