@@ -13,34 +13,37 @@ import javax.sql.DataSource
 class SetsInterface {
 
     @Autowired
-    @Qualifier("mysqldatasource")
-    private val mySqlDataSource: DataSource? = null
+    @Qualifier("gymlogDataSource")
+    private val gymlogDataSource: DataSource? = null
 
 
     @CrossOrigin
-    @RequestMapping("/gymlog/sets", method = [(RequestMethod.GET)])
+    @RequestMapping("/api/gymlog/sets", method = [(RequestMethod.GET)])
     fun getSets(@RequestParam(value = "userId") userId: String, @RequestParam(value = "skip") skip: Int?, @RequestParam(value = "limit") limit: Int?) =
-            SetsDatabase.getSets(mySqlDataSource!!, userId, skip ?: 0, limit ?: 50)
+            SetsDatabase.getSets(gymlogDataSource!!, userId, skip ?: 0, limit ?: 50)
 
-    @RequestMapping("/gymlog/{userId}/sets", method = [(RequestMethod.POST)])
+    @CrossOrigin
+    @RequestMapping("/api/gymlog/{userId}/sets", method = [(RequestMethod.POST)])
     fun addSets(@PathVariable(required = true, value = "userId") userId: String?, @RequestBody set: InputSet) =
             if(userId != null) {
-                if(SetsDatabase.addSet(mySqlDataSource!!, userId, set)) HttpResponse("ok","added new set for user $userId") else HttpResponse("failure", "user id required")
+                if(SetsDatabase.addSet(gymlogDataSource!!, userId, set)) HttpResponse("ok","added new set for user $userId") else HttpResponse("failure", "user id required")
             } else throw DuplicateItemException()
 
-    @RequestMapping("gymlog/{userId}/sets/{setId}", method = [(RequestMethod.DELETE)])
+    @CrossOrigin
+    @RequestMapping("/api/gymlog/{userId}/sets/{setId}", method = [(RequestMethod.DELETE)])
     fun deleteSets(@PathVariable(required = true, value = "userId") userId: String?, @PathVariable(required = true, value = "setId") setId: String?) =
         if (userId == null || setId == null) HttpResponse("invalid request","set id and user id are required for deletion")
         else {
-            SetsDatabase.deleteSet(mySqlDataSource!!, setId, userId)
+            SetsDatabase.deleteSet(gymlogDataSource!!, setId, userId)
             HttpResponse("success", "deleted set")
         }
 
-    @RequestMapping("gymlog/{userId}/sets/{setId}", method = [(RequestMethod.PUT)])
+    @CrossOrigin
+    @RequestMapping("/api/gymlog/{userId}/sets/{setId}", method = [(RequestMethod.PUT)])
     fun updateSets(@PathVariable(required = true, value = "userId") userId: String?, @PathVariable(required = true, value = "setId") setId: String?, @RequestBody set: InputSet?) =
             if (userId == null || setId == null || set == null) HttpResponse("invalid request","set id and user id are required for update")
             else {
-                SetsDatabase.updateSet(mySqlDataSource!!, setId, userId, set)
+                SetsDatabase.updateSet(gymlogDataSource!!, setId, userId, set)
                 HttpResponse("success", "set updated")
             }
 }

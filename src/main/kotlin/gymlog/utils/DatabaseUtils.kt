@@ -3,16 +3,16 @@ package gymlog.utils
 import java.sql.*
 import javax.sql.DataSource
 
-object MySQLJDBCUtil {
+object DatabaseUtils {
 
-    fun doQuery(dataSource: DataSource, query: String, params: Map<Int, Any>): List<Map<*,*>> {
+    fun doQuery(dataSource: DataSource, query: String, params: Map<Int, Any>?): List<Map<*,*>> {
         val results = mutableListOf<MutableMap<String, Any?>>()
-        val connection = MySQLJDBCUtil.getConnection(dataSource)
+        val connection = DatabaseUtils.getConnection(dataSource)
 
         connection.use {
             val preparedStatement = connection.prepareStatement(query)
             preparedStatement.use {
-                params.forEach { param ->
+                params?.forEach { param ->
                     when (param.value::class.java){
                         String::class.java -> preparedStatement.setString(param.key, param.value as String)
                         Integer::class.java -> preparedStatement.setInt(param.key, param.value as Int)

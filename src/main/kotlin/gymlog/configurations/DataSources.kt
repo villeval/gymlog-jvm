@@ -7,11 +7,11 @@ import org.springframework.stereotype.Component
 import javax.sql.DataSource
 
 @Component
-open class DataSources {
+class DataSources {
 
-    @Bean("mysqldatasource")
-    @ConfigurationProperties(prefix = "mysqldatasource")
-    open fun getMySqlDataSource(): DataSource {
+    @Bean("gymlogdatasource")
+    @ConfigurationProperties(prefix = "gymlogdatasource")
+    fun getGymlogDataSource(): DataSource {
         return DataSourceBuilder.create().build()
     }
 }

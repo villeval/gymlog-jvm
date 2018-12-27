@@ -3,7 +3,7 @@ package gymlog.services
 import gymlog.models.InputSet
 import gymlog.models.Set
 import gymlog.models.Sets
-import gymlog.utils.MySQLJDBCUtil
+import gymlog.utils.DatabaseUtils
 import java.sql.*
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -23,7 +23,7 @@ object SetsDatabase {
                 3 to limit
         )
 
-        val results = MySQLJDBCUtil.doQuery(dataSource, getSetsQuery, params)
+        val results = DatabaseUtils.doQuery(dataSource, getSetsQuery, params)
         return Sets(
                 total = results.size,
                 skip = skip,
@@ -54,7 +54,7 @@ object SetsDatabase {
                 7 to LocalDate.now()
         )
 
-        val results = MySQLJDBCUtil.doQuery(dataSource, insertSetQuery, params)
+        val results = DatabaseUtils.doQuery(dataSource, insertSetQuery, params)
         println(results)
         return true
     }
@@ -65,7 +65,7 @@ object SetsDatabase {
                 2 to userId
         )
 
-        val results = MySQLJDBCUtil.doQuery(dataSource, deleteSetQuery, params)
+        val results = DatabaseUtils.doQuery(dataSource, deleteSetQuery, params)
         println(results)
         return true
     }
@@ -80,7 +80,7 @@ object SetsDatabase {
                 6 to userId
         )
 
-        val results = MySQLJDBCUtil.doQuery(dataSource, updateSetQuery, params)
+        val results = DatabaseUtils.doQuery(dataSource, updateSetQuery, params)
         println(results)
         return true
     }
