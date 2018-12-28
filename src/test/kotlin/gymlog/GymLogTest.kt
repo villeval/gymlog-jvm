@@ -23,11 +23,10 @@ class GymLogTest {
     @Qualifier("gymlogdatasource")
     private val gymlogDataSource: DataSource? = null
 
-    @Before
-    fun foo() {
-        DatabaseUtils.doQuery(gymlogDataSource!!, "create schema foo", null)
-        DatabaseUtils.doQuery(gymlogDataSource!!, "create table bar (foobar integer)", null)
-    }
+    // todo: init database
+    // todo: execute schema, table and data inserts
+    // todo: tests for each crud action / API
+    // todo: tear down after execution
 
     @Test
     @Throws(Exception::class)
