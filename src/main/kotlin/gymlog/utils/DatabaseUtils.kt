@@ -49,6 +49,30 @@ object DatabaseUtils {
         return results.toList()
     }
 
+    fun doUpdate(dataSource: DataSource, query: String, params: Map<Int, Any>?): Int {
+        val connection = DatabaseUtils.getConnection(dataSource)
+
+        return connection.use {
+            val preparedStatement = connection.prepareStatement(query)
+            preparedStatement.use {
+                params?.forEach { param ->
+                    when (param.value::class.java) {
+                        String::class.java -> preparedStatement.setString(param.key, param.value as String)
+                        Integer::class.java -> preparedStatement.setInt(param.key, param.value as Int)
+                        java.util.Date::class.java -> {
+                            val date = param.value as Date
+                            preparedStatement.setTimestamp(param.key, Timestamp(date.time))
+                        }
+                        else -> println("Parameter data type not valid")
+                    }
+                }
+                preparedStatement.executeUpdate()
+            }
+        }
+    }
+
+
+
     fun getConnection(dataSource: DataSource): Connection {
         var connection: Connection? = null
         try {

@@ -31,17 +31,19 @@ object SetsDatabase {
                 sets = results.map { row ->
                     println(row)
                     Set(
-                            id = row["ID"] as String,
-                            userId = row["USERID"] as String,
-                            weight = row["WEIGHT"] as Double,
-                            exercise = row["EXERCISE"] as String,
-                            reps = row["REPS"] as Int,
-                            lastModifiedDate = row["LASTMODIFIEDDATE"] as Timestamp,
-                            createdDate = row["CREATEDDATE"] as Date
+                        id = row["ID"] as String,
+                        userId = row["USERID"] as String,
+                        weight = row["WEIGHT"] as Double,
+                        exercise = row["EXERCISE"] as String,
+                        reps = row["REPS"] as Int,
+                        createdDate = row["CREATEDDATE"] as Date,
+                        lastModifiedDate = row["LASTMODIFIEDDATE"] as Timestamp
                     )
                 }
         )
     }
+
+    // todo: cant use same doQuery as above, use executeUpdate instead since this type of query doesnt return resultset
 
     fun addSet(dataSource: DataSource, userId: String, inputSet: InputSet): Boolean {
         val params = mapOf(
@@ -50,11 +52,12 @@ object SetsDatabase {
                 3 to inputSet.exercise,
                 4 to inputSet.weight,
                 5 to inputSet.reps,
-                6 to LocalDateTime.now(),
-                7 to LocalDate.now()
+                6 to LocalDate.now(),
+                7 to LocalDateTime.now()
         )
 
-        val results = DatabaseUtils.doQuery(dataSource, insertSetQuery, params)
+        val results = DatabaseUtils.doUpdate(dataSource, insertSetQuery, params)
+        // todo handling result
         println(results)
         return true
     }
@@ -65,7 +68,8 @@ object SetsDatabase {
                 2 to userId
         )
 
-        val results = DatabaseUtils.doQuery(dataSource, deleteSetQuery, params)
+        val results = DatabaseUtils.doUpdate(dataSource, deleteSetQuery, params)
+        // todo handling result
         println(results)
         return true
     }
@@ -80,7 +84,8 @@ object SetsDatabase {
                 6 to userId
         )
 
-        val results = DatabaseUtils.doQuery(dataSource, updateSetQuery, params)
+        val results = DatabaseUtils.doUpdate(dataSource, updateSetQuery, params)
+        // todo handling result
         println(results)
         return true
     }

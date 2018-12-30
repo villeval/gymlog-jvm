@@ -58,7 +58,10 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     compile "org.springframework.boot:spring-boot-starter-jdbc"
 
-    testCompile "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
+    //testCompile "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
+    //testCompile "org.apache.httpcomponents:httpclient:4.5.4"
     testCompile "org.springframework.boot:spring-boot-starter-test"
-    testCompile group: 'com.h2database', name: 'h2', version: '1.4.197'
+    testCompile "org.hsqldb:hsqldb:2.4.0"
+    testCompile "org.hsqldb:sqltool:2.4.0"
+    //testCompile "org.mock-server:mockserver-netty:3.10.7"
 }
