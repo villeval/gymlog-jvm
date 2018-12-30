@@ -1,8 +1,9 @@
 # gymlog
 
 # Work in progress!
+Todo-list:
+- In-memory database for testing
+- Unit testing and integration testing
+- Test utils for REST-operations
 
-Simple Spring Boot -application to provide REST APIs for front-end and mobile development training. The application is containerized with Docker for actual use but it can be run locally 
-with "gradle bootRun" -command and it will be found from localhost:8081. Included deploy-scripts are for AWS-based development environment (CI/CD-pipeline built with Jenkins) to automate the build and deploy steps.
-
-Nginx configs for proxy are found in separate repository.
+Simple CRUD-application providing REST APIs for front-end and mobile development training and to try out various things like Docker-plugin for Gradle. Included deploy-script is for deploying generated Docker image to EC2-instance as a Docker service (management by Docker Swarm) via SSH from Jenkins-job after building and archiving necessary artifacts.
