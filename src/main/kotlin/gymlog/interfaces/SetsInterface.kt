@@ -18,19 +18,19 @@ class SetsInterface {
 
 
     @CrossOrigin
-    @RequestMapping("/api/gymlog/sets", method = [(RequestMethod.GET)])
+    @RequestMapping("/api/sets", method = [(RequestMethod.GET)])
     fun getSets(@RequestParam(value = "userId") userId: String, @RequestParam(value = "skip") skip: Int?, @RequestParam(value = "limit") limit: Int?) =
             SetsDatabase.getSets(gymlogDataSource!!, userId, skip ?: 0, limit ?: 50)
 
     @CrossOrigin
-    @RequestMapping("/api/gymlog/{userId}/sets", method = [(RequestMethod.POST)])
+    @RequestMapping("/api/sets/{userId}", method = [(RequestMethod.POST)])
     fun addSets(@PathVariable(required = true, value = "userId") userId: String?, @RequestBody set: InputSet) =
             if(userId != null) {
                 if(SetsDatabase.addSet(gymlogDataSource!!, userId, set)) HttpResponse("ok","added new set for user $userId") else HttpResponse("failure", "user id required")
             } else throw DuplicateItemException()
 
     @CrossOrigin
-    @RequestMapping("/api/gymlog/{userId}/sets/{setId}", method = [(RequestMethod.DELETE)])
+    @RequestMapping("/api/sets/{userId}/{setId}", method = [(RequestMethod.DELETE)])
     fun deleteSets(@PathVariable(required = true, value = "userId") userId: String?, @PathVariable(required = true, value = "setId") setId: String?) =
         if (userId == null || setId == null) HttpResponse("invalid request","set id and user id are required for deletion")
         else {
@@ -39,7 +39,7 @@ class SetsInterface {
         }
 
     @CrossOrigin
-    @RequestMapping("/api/gymlog/{userId}/sets/{setId}", method = [(RequestMethod.PUT)])
+    @RequestMapping("/api/sets/{userId}/{setId}", method = [(RequestMethod.PUT)])
     fun updateSets(@PathVariable(required = true, value = "userId") userId: String?, @PathVariable(required = true, value = "setId") setId: String?, @RequestBody set: InputSet?) =
             if (userId == null || setId == null || set == null) HttpResponse("invalid request","set id and user id are required for update")
             else {
