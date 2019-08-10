@@ -6,8 +6,6 @@ import gymlog.models.SetRows
 import gymlog.utils.DatabaseUtils
 import java.math.BigDecimal
 import java.sql.*
-import java.time.LocalDate
-import java.time.LocalDateTime
 import javax.sql.DataSource
 
 object SetsDatabase {

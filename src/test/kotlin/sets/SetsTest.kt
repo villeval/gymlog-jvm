@@ -1,6 +1,7 @@
-package gymlog
+package sets
 
-import gymlog.InvokeActions.invokeDelete
+import gymlog.Application
+import sets.InvokeActions.invokeDelete
 import gymlog.controllers.SetsController
 import gymlog.utils.DatabaseUtils
 import org.junit.Assert
@@ -16,8 +17,8 @@ import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.junit4.SpringRunner
 import javax.sql.DataSource
 import org.springframework.test.web.servlet.MockMvc
-import gymlog.InvokeActions.invokeGet
-import gymlog.InvokeActions.invokePost
+import sets.InvokeActions.invokeGet
+import sets.InvokeActions.invokePost
 import gymlog.models.SetRow
 import gymlog.models.SetRows
 import gymlog.services.SetsDatabase.CREATED_DATE_COLUMN
@@ -34,11 +35,11 @@ import java.util.*
 import kotlin.collections.HashMap
 
 @RunWith(SpringRunner::class)
-@SpringBootTest
+@SpringBootTest(classes = [Application::class])
 @AutoConfigureMockMvc
 //@ActiveProfiles(“test”)
 @TestPropertySource(locations = ["classpath:junit.properties"])
-class GymLogTest {
+class SetsTest {
 
     @Autowired
     val setsController: SetsController? = null
@@ -50,14 +51,15 @@ class GymLogTest {
     @Qualifier("gymlogdatasource")
     private val gymlogDataSource: DataSource? = null
 
-    private val log = LoggerFactory.getLogger(GymLogTest::class.java)
+    private val log = LoggerFactory.getLogger(SetsTest::class.java)
 
     @Before
     fun init() {
         val conn = DatabaseUtils.getConnection(gymlogDataSource!!)
         conn.use {
-            conn.prepareStatement("CREATE SCHEMA FOO;").executeUpdate()
-            conn.prepareStatement("CREATE TABLE $SETS_TABLE ($SET_ID_COLUMN varchar(100), $USER_ID_COLUMN varchar(100), $EXERCISE_COLUMN varchar(100), $WEIGHT_COLUMN decimal(10,1), $REPETITIONS_COLUMN integer, $CREATED_DATE_COLUMN timestamp);").executeUpdate()
+            conn.prepareStatement("DROP SCHEMA FOO IF EXISTS CASCADE;").executeUpdate()
+            conn.prepareStatement("CREATE SCHEMA FOO AUTHORIZATION DBA;").executeUpdate()
+            conn.prepareStatement("CREATE TABLE IF NOT EXISTS $SETS_TABLE ($SET_ID_COLUMN varchar(100), $USER_ID_COLUMN varchar(100), $EXERCISE_COLUMN varchar(100), $WEIGHT_COLUMN decimal(10,1), $REPETITIONS_COLUMN integer, $CREATED_DATE_COLUMN timestamp);").executeUpdate()
             conn.prepareStatement("INSERT INTO $SETS_TABLE VALUES ('set id 1', 'user id 1', 'Squat', 102.5, 10, '2019-01-01 00:00:00');").executeUpdate()
         }
     }
