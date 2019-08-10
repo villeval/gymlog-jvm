@@ -29,6 +29,7 @@ class SetsController {
     fun addSets(@PathVariable(required = true, value = "userId") userId: String?, @RequestBody set: InputSet) =
             if(userId != null) {
                 if(SetsDatabase.addSet(gymlogDataSource!!, userId, set)) HttpResponse("ok","added new set for user $userId") else HttpResponse("failure", "user id required")
+                // todo: check this exception
             } else throw DuplicateItemException()
 
     @CrossOrigin
@@ -36,7 +37,6 @@ class SetsController {
     fun deleteSets(@PathVariable(required = true, value = "userId") userId: String?, @PathVariable(required = true, value = "setId") setId: String?) =
         if (userId == null || setId == null) HttpResponse("invalid request","set id and user id are required for deletion")
         else {
-            SetsDatabase.deleteSet(gymlogDataSource!!, setId, userId)
-            HttpResponse("success", "set deleted")
+            if(SetsDatabase.deleteSet(gymlogDataSource!!, setId, userId)) HttpResponse("success", "set deleted") else HttpResponse("failure", "deletion failed")
         }
 }

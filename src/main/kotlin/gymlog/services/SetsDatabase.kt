@@ -59,11 +59,8 @@ object SetsDatabase {
                 5 to inputSet.repetitions,
                 6 to java.util.Date(System.currentTimeMillis())
         )
-
         val results = DatabaseUtils.doUpdate(dataSource, insertSetQuery, params)
-        // todo handling result
-        println(results)
-        return true
+        return results == 1
     }
 
     fun deleteSet(dataSource: DataSource, setId: String, userId: String): Boolean {
@@ -71,11 +68,9 @@ object SetsDatabase {
                 1 to setId,
                 2 to userId
         )
-
+        // todo handle "not found" exception
         val results = DatabaseUtils.doUpdate(dataSource, deleteSetQuery, params)
-        // todo handling result
-        println(results)
-        return true
+        return results == 1
     }
 
     private fun convertTimestampToDate(timestamp: Timestamp): Date {
