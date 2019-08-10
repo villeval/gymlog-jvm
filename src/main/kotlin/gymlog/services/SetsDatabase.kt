@@ -1,9 +1,10 @@
 package gymlog.services
 
 import gymlog.models.InputSet
-import gymlog.models.Set
-import gymlog.models.Sets
+import gymlog.models.SetRow
+import gymlog.models.SetRows
 import gymlog.utils.DatabaseUtils
+import java.math.BigDecimal
 import java.sql.*
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -11,12 +12,22 @@ import javax.sql.DataSource
 
 object SetsDatabase {
 
-    private const val getSetsQuery = "SELECT * FROM SETS WHERE USERID LIKE ? LIMIT ?, ?"
-    private const val insertSetQuery = "INSERT INTO SETS VALUES (?,?,?,?,?,?,?)"
-    private const val deleteSetQuery = "DELETE FROM SETS WHERE ID = ? AND USERID = ?"
-    private const val updateSetQuery = "UPDATE SETS SET EXERCISE = ?, WEIGHT = ?, REPS = ?, LASTMODIFIEDDATE = ? WHERE ID = ? AND USERID = ?"
+    // table properties
+    const val SETS_TABLE = "FOO.SETS"
 
-    fun getSets(dataSource: DataSource, userId: String, skip: Int, limit: Int): Sets {
+    // columns
+    const val ID_COLUMN = "ID"
+    const val USER_ID_COLUMN = "USER_ID"
+    const val WEIGHT_COLUMN = "WEIGHT"
+    const val EXERCISE_COLUMN = "EXERCISE"
+    const val REPETITIONS_COLUMN = "REPETITIONS"
+    const val CREATED_DATE_COLUMN = "CREATED_DATE"
+
+    private const val getSetsQuery = "SELECT * FROM $SETS_TABLE WHERE $USER_ID_COLUMN LIKE ? LIMIT ?, ?"
+    private const val insertSetQuery = "INSERT INTO $SETS_TABLE VALUES (?,?,?,?,?,?,?)"
+    private const val deleteSetQuery = "DELETE FROM $SETS_TABLE WHERE $ID_COLUMN = ? AND $USER_ID_COLUMN = ?"
+
+    fun getSets(dataSource: DataSource, userId: String, skip: Int, limit: Int): SetRows {
         val params = mapOf(
                 1 to userId,
                 2 to skip,
@@ -24,26 +35,22 @@ object SetsDatabase {
         )
 
         val results = DatabaseUtils.doQuery(dataSource, getSetsQuery, params)
-        return Sets(
+        return SetRows(
                 total = results.size,
                 skip = skip,
                 limit = limit,
                 sets = results.map { row ->
-                    println(row)
-                    Set(
-                        id = row["ID"] as String,
-                        userId = row["USERID"] as String,
-                        weight = row["WEIGHT"] as Double,
-                        exercise = row["EXERCISE"] as String,
-                        reps = row["REPS"] as Int,
-                        createdDate = row["CREATEDDATE"] as Date,
-                        lastModifiedDate = row["LASTMODIFIEDDATE"] as Timestamp
+                    SetRow(
+                        id = row[ID_COLUMN] as String,
+                        userId = row[USER_ID_COLUMN] as String,
+                        weight = row[WEIGHT_COLUMN] as BigDecimal,
+                        exercise = row[EXERCISE_COLUMN] as String,
+                        reps = row[REPETITIONS_COLUMN] as Int,
+                        createdDate = convertTimestampToDate(row[CREATED_DATE_COLUMN] as Timestamp)
                     )
                 }
         )
     }
-
-    // todo: cant use same doQuery as above, use executeUpdate instead since this type of query doesnt return resultset
 
     fun addSet(dataSource: DataSource, userId: String, inputSet: InputSet): Boolean {
         val params = mapOf(
@@ -74,19 +81,7 @@ object SetsDatabase {
         return true
     }
 
-    fun updateSet(dataSource: DataSource, setId: String, userId: String, inputSet: InputSet): Boolean {
-        val params = mapOf(
-                1 to inputSet.exercise,
-                2 to inputSet.weight,
-                3 to inputSet.reps,
-                4 to LocalDateTime.now(),
-                5 to setId,
-                6 to userId
-        )
-
-        val results = DatabaseUtils.doUpdate(dataSource, updateSetQuery, params)
-        // todo handling result
-        println(results)
-        return true
+    private fun convertTimestampToDate(timestamp: Timestamp): Date {
+        return Date(timestamp.time)
     }
 }

@@ -38,7 +38,8 @@ object DatabaseUtils {
                             "java.lang.String" -> resultSet.getString(index)
                             "java.lang.Long" -> resultSet.getLong(index)
                             "java.lang.Double" -> resultSet.getDouble(index)
-                            else -> null
+                            "java.math.BigDecimal" -> resultSet.getBigDecimal(index)
+                            else -> throw Exception("unknown datatype")
                         }
                         row[columnName] = value
                     }

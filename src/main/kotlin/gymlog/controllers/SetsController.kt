@@ -13,14 +13,16 @@ import javax.sql.DataSource
 class SetsController {
 
     @Autowired
-    @Qualifier("gymlogDataSource")
+    @Qualifier("gymlogdatasource")
     private val gymlogDataSource: DataSource? = null
 
+    // todo: user authentication for these routes (private), maybe jwt like in node app?
+    // todo: evaluate database choice
+    // todo: Dockerfile and deployment script
 
     @CrossOrigin
     @RequestMapping("/api/sets", method = [(RequestMethod.GET)])
-    fun getSets(@RequestParam(value = "userId") userId: String, @RequestParam(value = "skip") skip: Int?, @RequestParam(value = "limit") limit: Int?) =
-            SetsDatabase.getSets(gymlogDataSource!!, userId, skip ?: 0, limit ?: 50)
+    fun getSets(@RequestParam(value = "userId") userId: String, @RequestParam(value = "skip") skip: Int?, @RequestParam(value = "limit") limit: Int?) = SetsDatabase.getSets(gymlogDataSource!!, userId, skip ?: 0, limit ?: 50)
 
     @CrossOrigin
     @RequestMapping("/api/sets/{userId}", method = [(RequestMethod.POST)])
@@ -35,15 +37,6 @@ class SetsController {
         if (userId == null || setId == null) HttpResponse("invalid request","set id and user id are required for deletion")
         else {
             SetsDatabase.deleteSet(gymlogDataSource!!, setId, userId)
-            HttpResponse("success", "deleted set")
+            HttpResponse("success", "set deleted")
         }
-
-    @CrossOrigin
-    @RequestMapping("/api/sets/{userId}/{setId}", method = [(RequestMethod.PUT)])
-    fun updateSets(@PathVariable(required = true, value = "userId") userId: String?, @PathVariable(required = true, value = "setId") setId: String?, @RequestBody set: InputSet?) =
-            if (userId == null || setId == null || set == null) HttpResponse("invalid request","set id and user id are required for update")
-            else {
-                SetsDatabase.updateSet(gymlogDataSource!!, setId, userId, set)
-                HttpResponse("success", "set updated")
-            }
 }
