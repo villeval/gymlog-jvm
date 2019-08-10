@@ -1,6 +1,6 @@
 package gymlog
 
-import gymlog.InvokeActions.invokeDeleteWithTwoPathVariables
+import gymlog.InvokeActions.invokeDelete
 import gymlog.controllers.SetsController
 import gymlog.utils.DatabaseUtils
 import org.junit.Assert
@@ -17,6 +17,8 @@ import org.springframework.test.context.junit4.SpringRunner
 import javax.sql.DataSource
 import org.springframework.test.web.servlet.MockMvc
 import gymlog.InvokeActions.invokeGet
+import gymlog.InvokeActions.invokePost
+import gymlog.models.SetRow
 import gymlog.models.SetRows
 import gymlog.services.SetsDatabase.CREATED_DATE_COLUMN
 import gymlog.services.SetsDatabase.EXERCISE_COLUMN
@@ -28,6 +30,8 @@ import gymlog.services.SetsDatabase.WEIGHT_COLUMN
 import gymlog.utils.JsonUtils
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.math.BigDecimal
+import java.util.*
+import kotlin.collections.HashMap
 
 @RunWith(SpringRunner::class)
 @SpringBootTest
@@ -92,9 +96,17 @@ class GymLogTest {
 
     // todo: should the database utils be switched to hsqldb tool with sql files
     @Test
-    fun deleteSet() {
-        invokeDeleteWithTwoPathVariables(mvc!!, "/api/sets/{userId}/{setId}", pathVariable1 =  "user id 1", pathVariable2 = "set id 1").andExpect(status().isOk).andReturn()
+    fun testDeleteSet() {
+        invokeDelete(mvc!!, "/api/sets/{userId}/{setId}", pathVariables = arrayListOf("user id 1", "set id 1")).andExpect(status().isOk).andReturn()
         val result = DatabaseUtils.doQuery(gymlogDataSource!!, "select * from $SETS_TABLE where $USER_ID_COLUMN = ? and $SET_ID_COLUMN = ?", mapOf(1 to "user id 1", 2 to "set id 1"))
         Assert.assertEquals(0, result.size)
+    }
+
+    @Test
+    fun testPostSet() {
+        val body = JsonUtils.objectToJson(SetRow("set id 2", "user id 1", "Deadlift", BigDecimal(105.0), 15, Date(System.currentTimeMillis())))
+        invokePost(mvc!!, "/api/sets/{userId}", pathVariables = arrayListOf("user id 1"), body = body).andExpect(status().isOk).andReturn()
+        val result = DatabaseUtils.doQuery(gymlogDataSource!!, "select * from $SETS_TABLE where $USER_ID_COLUMN = ?", mapOf(1 to "user id 1"))
+        Assert.assertEquals(2, result.size)
     }
 }

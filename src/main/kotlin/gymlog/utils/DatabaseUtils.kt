@@ -1,5 +1,6 @@
 package gymlog.utils
 
+import java.math.BigDecimal
 import java.sql.*
 import javax.sql.DataSource
 
@@ -60,11 +61,12 @@ object DatabaseUtils {
                     when (param.value::class.java) {
                         String::class.java -> preparedStatement.setString(param.key, param.value as String)
                         Integer::class.java -> preparedStatement.setInt(param.key, param.value as Int)
+                        BigDecimal::class.java -> preparedStatement.setBigDecimal(param.key, param.value as BigDecimal)
                         java.util.Date::class.java -> {
-                            val date = param.value as Date
+                            val date = param.value as java.util.Date
                             preparedStatement.setTimestamp(param.key, Timestamp(date.time))
                         }
-                        else -> println("Parameter data type not valid")
+                        else -> println("Parameter data type not valid for key ${param.key}: ${param.value::class.java} (value: ${param.value})")
                     }
                 }
                 preparedStatement.executeUpdate()

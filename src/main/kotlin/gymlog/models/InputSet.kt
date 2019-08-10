@@ -1,18 +1,20 @@
 package gymlog.models
 
+import java.math.BigDecimal
+
 class InputSet() {
-    var weight: Double = 0.0
+    var weight: BigDecimal = BigDecimal(0.0)
     lateinit var exercise: String
-    var reps: Int = 0
+    var repetitions: Int = 0
 
     constructor(
-            weight: Double,
+            weight: BigDecimal,
             exercise: String,
-            reps: Int) : this() {
+            repetitions: Int) : this() {
 
         this.weight = weight
         this.exercise = exercise
-        this.reps = reps
+        this.repetitions = repetitions
 
     }
 }

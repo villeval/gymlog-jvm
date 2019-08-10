@@ -7,7 +7,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.util.MultiValueMap
-import java.math.BigDecimal
 
 object InvokeActions {
 
@@ -22,17 +21,42 @@ object InvokeActions {
     }
 
     @Throws(Exception::class)
-    fun invokePost(mvc: MockMvc, url: String, json: ByteArray): ResultActions {
-        return mvc.perform(post(url).content(json).contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON));
+    fun invokePost(mvc: MockMvc, url: String, params: Map<String, Any> = emptyMap(), pathVariables: ArrayList<Any>, body: String): ResultActions {
+        return if(params.isNotEmpty()) {
+            val multiValueMap = convertParamsToMultiValueMap(params)
+            when (pathVariables.size) {
+                0 -> mvc.perform(MockMvcRequestBuilders.post(url).content(body).contentType(MediaType.APPLICATION_JSON).params(multiValueMap).accept(MediaType.APPLICATION_JSON))
+                1 -> mvc.perform(MockMvcRequestBuilders.post(url, pathVariables[0]).content(body).contentType(MediaType.APPLICATION_JSON).params(multiValueMap).accept(MediaType.APPLICATION_JSON))
+                2 -> mvc.perform(MockMvcRequestBuilders.post(url, pathVariables[0], pathVariables[1]).content(body).contentType(MediaType.APPLICATION_JSON).params(multiValueMap).accept(MediaType.APPLICATION_JSON))
+                else -> throw java.lang.Exception("too many path variables")
+            }
+        } else {
+            when (pathVariables.size) {
+                0 -> mvc.perform(MockMvcRequestBuilders.post(url).content(body).contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
+                1 -> mvc.perform(MockMvcRequestBuilders.post(url, pathVariables[0]).content(body).contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
+                2 -> mvc.perform(MockMvcRequestBuilders.post(url, pathVariables[0], pathVariables[1]).content(body).contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
+                else -> throw java.lang.Exception("too many path variables")
+            }
+        }
     }
 
     @Throws(Exception::class)
-    fun invokeDeleteWithTwoPathVariables(mvc: MockMvc, url: String, params: Map<String, Any> = emptyMap(), pathVariable1: Any, pathVariable2: Any): ResultActions {
+    fun invokeDelete(mvc: MockMvc, url: String, params: Map<String, Any> = emptyMap(), pathVariables: ArrayList<Any>): ResultActions {
         return if(params.isNotEmpty()) {
             val multiValueMap = convertParamsToMultiValueMap(params)
-            mvc.perform(MockMvcRequestBuilders.delete(url, pathVariable1, pathVariable2).params(multiValueMap).accept(MediaType.APPLICATION_JSON))
+            when (pathVariables.size) {
+                0 -> mvc.perform(MockMvcRequestBuilders.delete(url).params(multiValueMap).accept(MediaType.APPLICATION_JSON))
+                1 -> mvc.perform(MockMvcRequestBuilders.delete(url, pathVariables[0]).params(multiValueMap).accept(MediaType.APPLICATION_JSON))
+                2 -> mvc.perform(MockMvcRequestBuilders.delete(url, pathVariables[0], pathVariables[1]).params(multiValueMap).accept(MediaType.APPLICATION_JSON))
+                else -> throw java.lang.Exception("too many path variables")
+            }
         } else {
-            mvc.perform(MockMvcRequestBuilders.delete(url, pathVariable1, pathVariable2).accept(MediaType.APPLICATION_JSON))
+            when (pathVariables.size) {
+                0 -> mvc.perform(MockMvcRequestBuilders.delete(url).accept(MediaType.APPLICATION_JSON))
+                1 -> mvc.perform(MockMvcRequestBuilders.delete(url, pathVariables[0]).accept(MediaType.APPLICATION_JSON))
+                2 -> mvc.perform(MockMvcRequestBuilders.delete(url, pathVariables[0], pathVariables[1]).accept(MediaType.APPLICATION_JSON))
+                else -> throw java.lang.Exception("too many path variables")
+            }
         }
     }
 

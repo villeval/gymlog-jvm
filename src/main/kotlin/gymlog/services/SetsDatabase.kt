@@ -24,7 +24,7 @@ object SetsDatabase {
     const val CREATED_DATE_COLUMN = "CREATED_DATE"
 
     private const val getSetsQuery = "SELECT * FROM $SETS_TABLE WHERE $USER_ID_COLUMN LIKE ? LIMIT ?, ?"
-    private const val insertSetQuery = "INSERT INTO $SETS_TABLE VALUES (?,?,?,?,?,?,?)"
+    private const val insertSetQuery = "INSERT INTO $SETS_TABLE VALUES (?,?,?,?,?,?)"
     private const val deleteSetQuery = "DELETE FROM $SETS_TABLE WHERE $SET_ID_COLUMN = ? AND $USER_ID_COLUMN = ?"
 
     fun getSets(dataSource: DataSource, userId: String, skip: Int, limit: Int): SetRows {
@@ -54,13 +54,12 @@ object SetsDatabase {
 
     fun addSet(dataSource: DataSource, userId: String, inputSet: InputSet): Boolean {
         val params = mapOf(
-                1 to System.nanoTime(),
+                1 to System.nanoTime().toString() + userId,
                 2 to userId,
                 3 to inputSet.exercise,
                 4 to inputSet.weight,
-                5 to inputSet.reps,
-                6 to LocalDate.now(),
-                7 to LocalDateTime.now()
+                5 to inputSet.repetitions,
+                6 to java.util.Date(System.currentTimeMillis())
         )
 
         val results = DatabaseUtils.doUpdate(dataSource, insertSetQuery, params)
