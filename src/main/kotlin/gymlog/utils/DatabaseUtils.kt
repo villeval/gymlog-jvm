@@ -7,7 +7,7 @@ object DatabaseUtils {
 
     fun doQuery(dataSource: DataSource, query: String, params: Map<Int, Any>?): List<Map<*,*>> {
         val results = mutableListOf<MutableMap<String, Any?>>()
-        val connection = DatabaseUtils.getConnection(dataSource)
+        val connection = getConnection(dataSource)
 
         connection.use {
             val preparedStatement = connection.prepareStatement(query)
@@ -51,7 +51,7 @@ object DatabaseUtils {
     }
 
     fun doUpdate(dataSource: DataSource, query: String, params: Map<Int, Any>?): Int {
-        val connection = DatabaseUtils.getConnection(dataSource)
+        val connection = getConnection(dataSource)
 
         return connection.use {
             val preparedStatement = connection.prepareStatement(query)

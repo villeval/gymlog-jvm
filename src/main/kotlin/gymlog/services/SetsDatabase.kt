@@ -16,7 +16,7 @@ object SetsDatabase {
     const val SETS_TABLE = "FOO.SETS"
 
     // columns
-    const val ID_COLUMN = "ID"
+    const val SET_ID_COLUMN = "SET_ID"
     const val USER_ID_COLUMN = "USER_ID"
     const val WEIGHT_COLUMN = "WEIGHT"
     const val EXERCISE_COLUMN = "EXERCISE"
@@ -25,7 +25,7 @@ object SetsDatabase {
 
     private const val getSetsQuery = "SELECT * FROM $SETS_TABLE WHERE $USER_ID_COLUMN LIKE ? LIMIT ?, ?"
     private const val insertSetQuery = "INSERT INTO $SETS_TABLE VALUES (?,?,?,?,?,?,?)"
-    private const val deleteSetQuery = "DELETE FROM $SETS_TABLE WHERE $ID_COLUMN = ? AND $USER_ID_COLUMN = ?"
+    private const val deleteSetQuery = "DELETE FROM $SETS_TABLE WHERE $SET_ID_COLUMN = ? AND $USER_ID_COLUMN = ?"
 
     fun getSets(dataSource: DataSource, userId: String, skip: Int, limit: Int): SetRows {
         val params = mapOf(
@@ -41,7 +41,7 @@ object SetsDatabase {
                 limit = limit,
                 sets = results.map { row ->
                     SetRow(
-                        id = row[ID_COLUMN] as String,
+                        id = row[SET_ID_COLUMN] as String,
                         userId = row[USER_ID_COLUMN] as String,
                         weight = row[WEIGHT_COLUMN] as BigDecimal,
                         exercise = row[EXERCISE_COLUMN] as String,

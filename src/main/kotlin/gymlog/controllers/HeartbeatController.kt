@@ -9,9 +9,5 @@ import org.springframework.web.bind.annotation.RestController
 class HeartbeatInterface {
     @CrossOrigin
     @RequestMapping("/api/heartbeat", method = [(GET)])
-    fun getHeartbeat() = Heartbeat("ok")
+    fun getHeartbeat() = mapOf("status" to "ok")
 }
-
-data class Heartbeat(
-        val status: String
-)
