@@ -1,9 +1,7 @@
 package utils
 
-import gymlog.services.SetsDatabase
 import gymlog.utils.DatabaseUtils
 import javax.sql.DataSource
-import javax.xml.validation.Schema
 
 object TestDbUtils {
 
@@ -12,7 +10,7 @@ object TestDbUtils {
         val conn = DatabaseUtils.getConnection(dataSource)
         conn.use {
             conn.prepareStatement("DROP SCHEMA $schema IF EXISTS CASCADE;").executeUpdate()
-            conn.prepareStatement("CREATE SCHEMA FOO AUTHORIZATION DBA;").executeUpdate()
+            conn.prepareStatement("CREATE SCHEMA $schema AUTHORIZATION DBA;").executeUpdate()
         }
     }
 

@@ -12,7 +12,7 @@ import javax.sql.DataSource
 object SetsDatabase {
 
     // table properties
-    const val SETS_TABLE = "FOO.SETS"
+    const val SETS_TABLE = "GYMLOG.SETS"
 
     // columns
     const val SET_ID_COLUMN = "SET_ID"

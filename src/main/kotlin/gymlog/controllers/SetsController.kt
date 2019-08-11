@@ -1,9 +1,7 @@
 package gymlog.controllers
 
-import gymlog.exceptions.InvalidInputException
 import gymlog.exceptions.PathVariableNotFoundException
 import gymlog.services.SetsDatabase
-import gymlog.models.HttpResponse
 import gymlog.models.Sets
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
