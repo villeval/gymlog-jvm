@@ -51,13 +51,13 @@ object DatabaseUtils {
         return results.toList()
     }
 
-    fun doUpdate(dataSource: DataSource, query: String, params: Map<Int, Any>?): Int {
+    fun doUpdate(dataSource: DataSource, query: String, params: Map<Int, Any>): Int {
         val connection = getConnection(dataSource)
 
         return connection.use {
             val preparedStatement = connection.prepareStatement(query)
             preparedStatement.use {
-                params?.forEach { param ->
+                params.forEach { param ->
                     when (param.value::class.java) {
                         String::class.java -> preparedStatement.setString(param.key, param.value as String)
                         Integer::class.java -> preparedStatement.setInt(param.key, param.value as Int)

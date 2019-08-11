@@ -1,8 +1,9 @@
 package gymlog.services
 
-import gymlog.models.InputSet
-import gymlog.models.SetRow
-import gymlog.models.SetRows
+import gymlog.exceptions.DatabaseOperationFailedException
+import gymlog.exceptions.InvalidInputException
+import gymlog.models.Sets.Sets
+import gymlog.models.Sets.SetRow
 import gymlog.utils.DatabaseUtils
 import java.math.BigDecimal
 import java.sql.*
@@ -25,7 +26,7 @@ object SetsDatabase {
     private const val insertSetQuery = "INSERT INTO $SETS_TABLE VALUES (?,?,?,?,?,?)"
     private const val deleteSetQuery = "DELETE FROM $SETS_TABLE WHERE $SET_ID_COLUMN = ? AND $USER_ID_COLUMN = ?"
 
-    fun getSets(dataSource: DataSource, userId: String, skip: Int, limit: Int): SetRows {
+    fun getSets(dataSource: DataSource, userId: String, skip: Int, limit: Int): Sets {
         val params = mapOf(
                 1 to userId,
                 2 to skip,
@@ -33,44 +34,46 @@ object SetsDatabase {
         )
 
         val results = DatabaseUtils.doQuery(dataSource, getSetsQuery, params)
-        return SetRows(
+        return Sets(
                 total = results.size,
                 skip = skip,
                 limit = limit,
                 sets = results.map { row ->
                     SetRow(
-                        id = row[SET_ID_COLUMN] as String,
-                        userId = row[USER_ID_COLUMN] as String,
-                        weight = row[WEIGHT_COLUMN] as BigDecimal,
-                        exercise = row[EXERCISE_COLUMN] as String,
-                        reps = row[REPETITIONS_COLUMN] as Int,
-                        createdDate = convertTimestampToDate(row[CREATED_DATE_COLUMN] as Timestamp)
+                            id = row[SET_ID_COLUMN] as String,
+                            userId = row[USER_ID_COLUMN] as String,
+                            weight = row[WEIGHT_COLUMN] as BigDecimal,
+                            exercise = row[EXERCISE_COLUMN] as String,
+                            repetitions = row[REPETITIONS_COLUMN] as Int,
+                            createdDate = convertTimestampToDate(row[CREATED_DATE_COLUMN] as Timestamp)
                     )
                 }
         )
     }
 
-    fun addSet(dataSource: DataSource, userId: String, inputSet: InputSet): Boolean {
+    fun addSet(dataSource: DataSource, userId: String, inputSet: SetRow): SetRow {
+        if(inputSet.exercise == null || inputSet.weight == null || inputSet.repetitions == null) throw InvalidInputException()
+        val setId = System.nanoTime().toString() + userId
+        val createdDate = java.util.Date(System.currentTimeMillis())
         val params = mapOf(
-                1 to System.nanoTime().toString() + userId,
+                1 to setId,
                 2 to userId,
                 3 to inputSet.exercise,
                 4 to inputSet.weight,
                 5 to inputSet.repetitions,
-                6 to java.util.Date(System.currentTimeMillis())
+                6 to createdDate
         )
-        val results = DatabaseUtils.doUpdate(dataSource, insertSetQuery, params)
-        return results == 1
+        val result = DatabaseUtils.doUpdate(dataSource, insertSetQuery, params)
+        return if (result == 1) SetRow(setId, userId, inputSet.weight, inputSet.exercise, inputSet.repetitions, createdDate) else throw DatabaseOperationFailedException()
     }
 
-    fun deleteSet(dataSource: DataSource, setId: String, userId: String): Boolean {
+    fun deleteSet(dataSource: DataSource, setId: String, userId: String): SetRow {
         val params = mapOf(
                 1 to setId,
                 2 to userId
         )
-        // todo handle "not found" exception
-        val results = DatabaseUtils.doUpdate(dataSource, deleteSetQuery, params)
-        return results == 1
+        val result = DatabaseUtils.doUpdate(dataSource, deleteSetQuery, params)
+        return if (result == 1) SetRow(setId, userId, null, null, null, null) else throw DatabaseOperationFailedException()
     }
 
     private fun convertTimestampToDate(timestamp: Timestamp): Date {

@@ -4,6 +4,8 @@ import gymlog.Application
 import sets.InvokeActions.invokeDelete
 import gymlog.controllers.SetsController
 import gymlog.utils.DatabaseUtils
+import gymlog.models.Sets.SetRow
+import gymlog.models.Sets.Sets
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
@@ -19,8 +21,6 @@ import javax.sql.DataSource
 import org.springframework.test.web.servlet.MockMvc
 import sets.InvokeActions.invokeGet
 import sets.InvokeActions.invokePost
-import gymlog.models.SetRow
-import gymlog.models.SetRows
 import gymlog.services.SetsDatabase.CREATED_DATE_COLUMN
 import gymlog.services.SetsDatabase.EXERCISE_COLUMN
 import gymlog.services.SetsDatabase.SETS_TABLE
@@ -30,6 +30,7 @@ import gymlog.services.SetsDatabase.USER_ID_COLUMN
 import gymlog.services.SetsDatabase.WEIGHT_COLUMN
 import gymlog.utils.JsonUtils
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import utils.TestDbUtils
 import java.math.BigDecimal
 import java.util.*
 import kotlin.collections.HashMap
@@ -37,7 +38,6 @@ import kotlin.collections.HashMap
 @RunWith(SpringRunner::class)
 @SpringBootTest(classes = [Application::class])
 @AutoConfigureMockMvc
-//@ActiveProfiles(“test”)
 @TestPropertySource(locations = ["classpath:junit.properties"])
 class SetsTest {
 
@@ -55,16 +55,10 @@ class SetsTest {
 
     @Before
     fun init() {
-        val conn = DatabaseUtils.getConnection(gymlogDataSource!!)
-        conn.use {
-            conn.prepareStatement("DROP SCHEMA FOO IF EXISTS CASCADE;").executeUpdate()
-            conn.prepareStatement("CREATE SCHEMA FOO AUTHORIZATION DBA;").executeUpdate()
-            conn.prepareStatement("CREATE TABLE IF NOT EXISTS $SETS_TABLE ($SET_ID_COLUMN varchar(100), $USER_ID_COLUMN varchar(100), $EXERCISE_COLUMN varchar(100), $WEIGHT_COLUMN decimal(10,1), $REPETITIONS_COLUMN integer, $CREATED_DATE_COLUMN timestamp);").executeUpdate()
-            conn.prepareStatement("INSERT INTO $SETS_TABLE VALUES ('set id 1', 'user id 1', 'Squat', 102.5, 10, '2019-01-01 00:00:00');").executeUpdate()
-        }
+        TestDbUtils.createSchema(gymlogDataSource, "FOO")
+        TestDbUtils.executeSql(gymlogDataSource, "CREATE TABLE IF NOT EXISTS $SETS_TABLE ($SET_ID_COLUMN varchar(100), $USER_ID_COLUMN varchar(100), $EXERCISE_COLUMN varchar(100), $WEIGHT_COLUMN decimal(10,1), $REPETITIONS_COLUMN integer, $CREATED_DATE_COLUMN timestamp);")
+        TestDbUtils.executeSql(gymlogDataSource, "INSERT INTO $SETS_TABLE VALUES ('set id 1', 'user id 1', 'Squat', 102.5, 10, '2019-01-01 00:00:00');")
     }
-
-    // todo: tests for each crud action / API
 
     @Test
     @Throws(Exception::class)
@@ -85,30 +79,41 @@ class SetsTest {
     @Test
     fun testGetSets() {
         val result = invokeGet(mvc!!, "/api/sets", mapOf("userId" to "user id 1")).andExpect(status().isOk).andReturn()
-        val response = JsonUtils.jsonToObject(result.response.contentAsString, SetRows::class.java)
+        val response = JsonUtils.jsonToObject(result.response.contentAsString, Sets::class.java)
         val row = response.sets.first()
         Assert.assertEquals(1, response.total)
         Assert.assertEquals(200, result.response.status)
         Assert.assertEquals("set id 1", row.id)
         Assert.assertEquals("user id 1", row.userId)
-        Assert.assertEquals(10, row.reps)
+        Assert.assertEquals(10, row.repetitions)
         Assert.assertEquals("Squat", row.exercise)
         Assert.assertEquals(BigDecimal(102.5), row.weight)
     }
 
-    // todo: should the database utils be switched to hsqldb tool with sql files
     @Test
     fun testDeleteSet() {
-        invokeDelete(mvc!!, "/api/sets/{userId}/{setId}", pathVariables = arrayListOf("user id 1", "set id 1")).andExpect(status().isOk).andReturn()
-        val result = DatabaseUtils.doQuery(gymlogDataSource!!, "select * from $SETS_TABLE where $USER_ID_COLUMN = ? and $SET_ID_COLUMN = ?", mapOf(1 to "user id 1", 2 to "set id 1"))
-        Assert.assertEquals(0, result.size)
+        val result = invokeDelete(mvc!!, "/api/sets/{userId}/{setId}", pathVariables = arrayListOf("user id 1", "set id 1")).andExpect(status().isOk).andReturn()
+        val responseSet = JsonUtils.jsonToObject(result.response.contentAsString, SetRow::class.java)
+        Assert.assertEquals("user id 1", responseSet.userId)
+        Assert.assertEquals("set id 1", responseSet.id)
+
+        val foundRows = DatabaseUtils.doQuery(gymlogDataSource!!, "select * from $SETS_TABLE where $USER_ID_COLUMN = ? and $SET_ID_COLUMN = ?", mapOf(1 to "user id 1", 2 to "set id 1"))
+        Assert.assertEquals(0, foundRows.size)
     }
 
     @Test
     fun testPostSet() {
-        val body = JsonUtils.objectToJson(SetRow("set id 2", "user id 1", "Deadlift", BigDecimal(105.0), 15, Date(System.currentTimeMillis())))
-        invokePost(mvc!!, "/api/sets/{userId}", pathVariables = arrayListOf("user id 1"), body = body).andExpect(status().isOk).andReturn()
-        val result = DatabaseUtils.doQuery(gymlogDataSource!!, "select * from $SETS_TABLE where $USER_ID_COLUMN = ?", mapOf(1 to "user id 1"))
-        Assert.assertEquals(2, result.size)
+        val body = JsonUtils.objectToJson(SetRow(null, "user id 1", BigDecimal(105.0), "Deadlift", 15, Date(System.currentTimeMillis())))
+        val result = invokePost(mvc!!, "/api/sets/{userId}", pathVariables = arrayListOf("user id 1"), body = body).andExpect(status().isOk).andReturn()
+        val responseSet = JsonUtils.jsonToObject(result.response.contentAsString, SetRow::class.java)
+        Assert.assertNotNull(responseSet.id)
+        Assert.assertEquals("user id 1", responseSet.userId)
+        Assert.assertEquals(BigDecimal(105.0), responseSet.weight)
+        Assert.assertEquals("Deadlift", responseSet.exercise)
+        Assert.assertEquals(15, responseSet.repetitions)
+        Assert.assertNotNull(responseSet.createdDate)
+
+        val foundRows = DatabaseUtils.doQuery(gymlogDataSource!!, "select * from $SETS_TABLE where $USER_ID_COLUMN = ?", mapOf(1 to "user id 1"))
+        Assert.assertEquals(2, foundRows.size)
     }
 }

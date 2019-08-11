@@ -1,9 +1,10 @@
 package gymlog.controllers
 
-import gymlog.exceptions.DuplicateItemException
+import gymlog.exceptions.InvalidInputException
+import gymlog.exceptions.PathVariableNotFoundException
 import gymlog.services.SetsDatabase
 import gymlog.models.HttpResponse
-import gymlog.models.InputSet
+import gymlog.models.Sets
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.web.bind.annotation.*
@@ -26,17 +27,17 @@ class SetsController {
 
     @CrossOrigin
     @RequestMapping("/api/sets/{userId}", method = [(RequestMethod.POST)])
-    fun addSets(@PathVariable(required = true, value = "userId") userId: String?, @RequestBody set: InputSet) =
-            if(userId != null) {
-                if(SetsDatabase.addSet(gymlogDataSource!!, userId, set)) HttpResponse("ok","added new set for user $userId") else HttpResponse("failure", "user id required")
-                // todo: check this exception
-            } else throw DuplicateItemException()
+    fun addSets(@PathVariable(required = true, value = "userId") userId: String?, @RequestBody set: Sets.SetRow) =
+        if(userId == null) throw PathVariableNotFoundException()
+        else {
+           SetsDatabase.addSet(gymlogDataSource!!, userId, set)
+        }
 
     @CrossOrigin
     @RequestMapping("/api/sets/{userId}/{setId}", method = [(RequestMethod.DELETE)])
     fun deleteSets(@PathVariable(required = true, value = "userId") userId: String?, @PathVariable(required = true, value = "setId") setId: String?) =
-        if (userId == null || setId == null) HttpResponse("invalid request","set id and user id are required for deletion")
+        if (userId == null || setId == null) throw PathVariableNotFoundException()
         else {
-            if(SetsDatabase.deleteSet(gymlogDataSource!!, setId, userId)) HttpResponse("success", "set deleted") else HttpResponse("failure", "deletion failed")
+            SetsDatabase.deleteSet(gymlogDataSource!!, setId, userId)
         }
 }
