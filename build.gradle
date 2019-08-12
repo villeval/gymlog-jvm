@@ -44,6 +44,9 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 
+    // database support
+    compile "mysql:mysql-connector-java:8.0.17"
+
     // json parsing
     compile group: 'com.fasterxml.jackson.module', name: 'jackson-module-kotlin', version: '2.9.9'
 
