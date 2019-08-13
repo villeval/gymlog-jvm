@@ -1,8 +1,7 @@
 package gymlog.controllers
 
 import gymlog.exceptions.PathVariableNotFoundException
-import gymlog.utils.HttpConfig
-import gymlog.services.SetsDatabase
+import gymlog.services.SetsService
 import gymlog.models.Sets
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
@@ -22,7 +21,7 @@ class SetsController {
     @CrossOrigin
     @RequestMapping("/api/sets", method = [(RequestMethod.GET)])
     fun getSets(@RequestParam(value = "userId") userId: String, @RequestParam(value = "skip") skip: Int?, @RequestParam(value = "limit") limit: Int?): Sets.Sets {
-        return SetsDatabase.getSets(gymlogDataSource!!, userId, skip ?: 0, limit ?: 50)
+        return SetsService.getSets(gymlogDataSource!!, userId, skip ?: 0, limit ?: 50)
     }
 
     @CrossOrigin
@@ -30,7 +29,7 @@ class SetsController {
     fun addSets(@PathVariable(required = true, value = "userId") userId: String?, @RequestBody set: Sets.SetRow): Sets.SetRow {
         if (userId == null) throw PathVariableNotFoundException()
         else {
-            return SetsDatabase.addSet(gymlogDataSource!!, userId, set)
+            return SetsService.addSet(gymlogDataSource!!, userId, set)
         }
     }
 
@@ -39,7 +38,7 @@ class SetsController {
     fun deleteSets(@PathVariable(required = true, value = "userId") userId: String?, @PathVariable(required = true, value = "setId") setId: String?): Sets.SetRow {
         if (userId == null || setId == null) throw PathVariableNotFoundException()
         else {
-            return SetsDatabase.deleteSet(gymlogDataSource!!, setId, userId)
+            return SetsService.deleteSet(gymlogDataSource!!, setId, userId)
         }
     }
 }

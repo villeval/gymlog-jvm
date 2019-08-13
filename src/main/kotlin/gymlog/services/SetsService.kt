@@ -9,7 +9,7 @@ import java.math.BigDecimal
 import java.sql.*
 import javax.sql.DataSource
 
-object SetsDatabase {
+object SetsService {
 
     // table properties
     const val SETS_TABLE = "gymlog_db.SETS"
