@@ -17,13 +17,12 @@ class SetsController {
     private val gymlogDataSource: DataSource? = null
 
     // todo: user authentication for these routes (private), maybe jwt like in node app?
+    // todo: check the rest resource paths
 
     @CrossOrigin
     @RequestMapping("/api/sets", method = [(RequestMethod.GET)])
     fun getSets(@RequestParam(value = "userId") userId: String, @RequestParam(value = "skip") skip: Int?, @RequestParam(value = "limit") limit: Int?): Sets.Sets {
-        val foo = SetsDatabase.getSets(gymlogDataSource!!, userId, skip ?: 0, limit ?: 50)
-        println(foo)
-        return foo
+        return SetsDatabase.getSets(gymlogDataSource!!, userId, skip ?: 0, limit ?: 50)
     }
 
     @CrossOrigin

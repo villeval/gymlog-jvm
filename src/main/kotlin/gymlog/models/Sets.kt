@@ -10,7 +10,7 @@ object Sets {
                     val sets: List<SetRow>)
     
     data class SetRow(val id: String?,
-                      val userId: String,
+                      val userId: String?,
                       val weight: BigDecimal?,
                       val exercise: String?,
                       val repetitions: Int?,
