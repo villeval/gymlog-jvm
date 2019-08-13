@@ -1,7 +1,9 @@
 package gymlog.utils
 
+import org.slf4j.Logger
 import java.math.BigDecimal
 import java.sql.*
+import java.util.logging.Level
 import javax.sql.DataSource
 
 object DatabaseUtils {
@@ -9,7 +11,6 @@ object DatabaseUtils {
     fun doQuery(dataSource: DataSource, query: String, params: Map<Int, Any>?): List<Map<*,*>> {
         val results = mutableListOf<MutableMap<String, Any?>>()
         val connection = getConnection(dataSource)
-
         connection.use {
             val preparedStatement = connection.prepareStatement(query)
             preparedStatement.use {
@@ -24,28 +25,28 @@ object DatabaseUtils {
                         else -> println("Parameter data type not valid")
                     }
                 }
-                val resultSet = preparedStatement.executeQuery()
-                val columnCount = resultSet.metaData.columnCount
+                    val resultSet = preparedStatement.executeQuery()
+                    val columnCount = resultSet.metaData.columnCount
 
-                while(resultSet.next()) {
-                    val row = mutableMapOf<String, Any?>()
-                    for(index in 1..columnCount) {
-                        val type = resultSet.metaData.getColumnClassName(index)
-                        val columnName = resultSet.metaData.getColumnName(index)
-                        @Suppress("IMPLICIT_CAST_TO_ANY")
-                        val value = when (type) {
-                            "java.lang.Integer" -> resultSet.getInt(index)
-                            "java.sql.Timestamp" -> resultSet.getTimestamp(index)
-                            "java.lang.String" -> resultSet.getString(index)
-                            "java.lang.Long" -> resultSet.getLong(index)
-                            "java.lang.Double" -> resultSet.getDouble(index)
-                            "java.math.BigDecimal" -> resultSet.getBigDecimal(index)
-                            else -> throw Exception("unknown datatype")
+                    while(resultSet.next()) {
+                        val row = mutableMapOf<String, Any?>()
+                        for(index in 1..columnCount) {
+                            val type = resultSet.metaData.getColumnClassName(index)
+                            val columnName = resultSet.metaData.getColumnName(index)
+                            @Suppress("IMPLICIT_CAST_TO_ANY")
+                            val value = when (type) {
+                                "java.lang.Integer" -> resultSet.getInt(index)
+                                "java.sql.Timestamp" -> resultSet.getTimestamp(index)
+                                "java.lang.String" -> resultSet.getString(index)
+                                "java.lang.Long" -> resultSet.getLong(index)
+                                "java.lang.Double" -> resultSet.getDouble(index)
+                                "java.math.BigDecimal" -> resultSet.getBigDecimal(index)
+                                else -> throw Exception("unknown datatype")
+                            }
+                            row[columnName] = value
                         }
-                        row[columnName] = value
+                        results.add(row)
                     }
-                    results.add(row)
-                }
             }
         }
         return results.toList()

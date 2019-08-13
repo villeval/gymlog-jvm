@@ -12,7 +12,7 @@ import javax.sql.DataSource
 object SetsDatabase {
 
     // table properties
-    const val SETS_TABLE = "GYMLOG.SETS"
+    const val SETS_TABLE = "gymlog_db.SETS"
 
     // columns
     const val SET_ID_COLUMN = "SET_ID"
@@ -22,9 +22,9 @@ object SetsDatabase {
     const val REPETITIONS_COLUMN = "REPETITIONS"
     const val CREATED_DATE_COLUMN = "CREATED_DATE"
 
-    private const val getSetsQuery = "SELECT * FROM $SETS_TABLE WHERE $USER_ID_COLUMN LIKE ? LIMIT ?, ?"
-    private const val insertSetQuery = "INSERT INTO $SETS_TABLE VALUES (?,?,?,?,?,?)"
-    private const val deleteSetQuery = "DELETE FROM $SETS_TABLE WHERE $SET_ID_COLUMN = ? AND $USER_ID_COLUMN = ?"
+    private const val getSetsQuery = "SELECT * FROM $SETS_TABLE WHERE $USER_ID_COLUMN LIKE ? LIMIT ?, ?;"
+    private const val insertSetQuery = "INSERT INTO $SETS_TABLE VALUES (?,?,?,?,?,?);"
+    private const val deleteSetQuery = "DELETE FROM $SETS_TABLE WHERE $SET_ID_COLUMN = ? AND $USER_ID_COLUMN = ?;"
 
     fun getSets(dataSource: DataSource, userId: String, skip: Int, limit: Int): Sets {
         val params = mapOf(
