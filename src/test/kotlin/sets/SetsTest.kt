@@ -33,6 +33,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import utils.TestDbUtils
 import java.math.BigDecimal
 import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
 @RunWith(SpringRunner::class)
@@ -92,11 +93,9 @@ class SetsTest {
 
     @Test
     fun testDeleteSet() {
-        val result = invokeDelete(mvc!!, "/api/sets/{userId}/{setId}", pathVariables = arrayListOf("user id 1", "set id 1")).andExpect(status().isOk).andReturn()
+        val result = invokeDelete(mvc!!, "/api/sets/{setId}", pathVariables = arrayListOf("set id 1")).andExpect(status().isOk).andReturn()
         val responseSet = JsonUtils.jsonToObject(result.response.contentAsString, SetRow::class.java)
-        Assert.assertEquals("user id 1", responseSet.userId)
         Assert.assertEquals("set id 1", responseSet.id)
-
         val foundRows = DatabaseUtils.doQuery(gymlogDataSource!!, "select * from $SETS_TABLE where $USER_ID_COLUMN = ? and $SET_ID_COLUMN = ?", mapOf(1 to "user id 1", 2 to "set id 1"))
         Assert.assertEquals(0, foundRows.size)
     }
@@ -104,7 +103,7 @@ class SetsTest {
     @Test
     fun testPostSet() {
         val body = JsonUtils.objectToJson(SetRow(null, "user id 1", BigDecimal(105.0), "Deadlift", 15, Date(System.currentTimeMillis())))
-        val result = invokePost(mvc!!, "/api/sets/{userId}", pathVariables = arrayListOf("user id 1"), body = body).andExpect(status().isOk).andReturn()
+        val result = invokePost(mvc!!, "/api/sets", body = body, pathVariables = ArrayList()).andExpect(status().isOk).andReturn()
         val responseSet = JsonUtils.jsonToObject(result.response.contentAsString, SetRow::class.java)
         Assert.assertNotNull(responseSet.id)
         Assert.assertEquals("user id 1", responseSet.userId)

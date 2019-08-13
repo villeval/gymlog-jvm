@@ -25,20 +25,21 @@ class SetsController {
     }
 
     @CrossOrigin
-    @RequestMapping("/api/sets/{userId}", method = [(RequestMethod.POST)])
-    fun addSets(@PathVariable(required = true, value = "userId") userId: String?, @RequestBody set: Sets.SetRow): Sets.SetRow {
-        if (userId == null) throw PathVariableNotFoundException()
+    @RequestMapping("/api/sets", method = [(RequestMethod.POST)])
+    fun addSets(@RequestBody set: Sets.SetRow): Sets.SetRow {
+        if (set.userId == null) throw PathVariableNotFoundException()
         else {
-            return SetsService.addSet(gymlogDataSource!!, userId, set)
+            return SetsService.addSet(gymlogDataSource!!, set.userId, set)
         }
     }
 
     @CrossOrigin
-    @RequestMapping("/api/sets/{userId}/{setId}", method = [(RequestMethod.DELETE)])
-    fun deleteSets(@PathVariable(required = true, value = "userId") userId: String?, @PathVariable(required = true, value = "setId") setId: String?): Sets.SetRow {
-        if (userId == null || setId == null) throw PathVariableNotFoundException()
+    @RequestMapping("/api/sets/{setId}", method = [(RequestMethod.DELETE)])
+    fun deleteSets(@PathVariable(required = true, value = "setId") setId: String?): Sets.SetRow {
+        // todo: when user authentication is added for routes, add logic that only sets that belong to current user can be deleted
+        if (setId == null) throw PathVariableNotFoundException()
         else {
-            return SetsService.deleteSet(gymlogDataSource!!, setId, userId)
+            return SetsService.deleteSet(gymlogDataSource!!, setId)
         }
     }
 }

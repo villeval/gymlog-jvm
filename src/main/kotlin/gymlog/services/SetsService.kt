@@ -24,7 +24,7 @@ object SetsService {
 
     private const val getSetsQuery = "SELECT * FROM $SETS_TABLE WHERE $USER_ID_COLUMN LIKE ? LIMIT ?, ?;"
     private const val insertSetQuery = "INSERT INTO $SETS_TABLE VALUES (?,?,?,?,?,?);"
-    private const val deleteSetQuery = "DELETE FROM $SETS_TABLE WHERE $SET_ID_COLUMN = ? AND $USER_ID_COLUMN = ?;"
+    private const val deleteSetQuery = "DELETE FROM $SETS_TABLE WHERE $SET_ID_COLUMN = ?;"
 
     fun getSets(dataSource: DataSource, userId: String, skip: Int, limit: Int): Sets {
         val params = mapOf(
@@ -67,13 +67,11 @@ object SetsService {
         return if (result == 1) SetRow(setId, userId, inputSet.weight, inputSet.exercise, inputSet.repetitions, createdDate) else throw DatabaseOperationFailedException()
     }
 
-    fun deleteSet(dataSource: DataSource, setId: String, userId: String): SetRow {
-        val params = mapOf(
-                1 to setId,
-                2 to userId
-        )
+    fun deleteSet(dataSource: DataSource, setId: String): SetRow {
+        val params = mapOf(1 to setId)
         val result = DatabaseUtils.doUpdate(dataSource, deleteSetQuery, params)
-        return if (result == 1) SetRow(setId, userId, null, null, null, null) else throw DatabaseOperationFailedException()
+        // todo: add user id here after authentication is implemented?
+        return if (result == 1) SetRow(setId, null, null, null, null, null) else throw DatabaseOperationFailedException()
     }
 
     private fun convertTimestampToDate(timestamp: Timestamp): Date {

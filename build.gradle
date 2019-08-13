@@ -50,6 +50,9 @@ dependencies {
     // json parsing
     compile group: 'com.fasterxml.jackson.module', name: 'jackson-module-kotlin', version: '2.9.9'
 
+    // encryption
+    compile group: 'org.jasypt', name: 'jasypt', version: '1.9.3'
+
     // testing
     testCompile "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
     testCompile "org.springframework.boot:spring-boot-starter-test"
