@@ -2,6 +2,7 @@ package gymlog.services
 
 import gymlog.exceptions.DatabaseOperationFailedException
 import gymlog.exceptions.InvalidInputException
+import gymlog.exceptions.NoContentException
 import gymlog.models.Sets.Sets
 import gymlog.models.Sets.SetRow
 import gymlog.utils.DatabaseUtils
@@ -71,7 +72,7 @@ object SetsService {
         val params = mapOf(1 to setId)
         val result = DatabaseUtils.doUpdate(dataSource, deleteSetQuery, params)
         // todo: add user id here after authentication is implemented?
-        return if (result == 1) SetRow(setId, null, null, null, null, null) else throw DatabaseOperationFailedException()
+        return if (result == 1) SetRow(setId, null, null, null, null, null) else throw NoContentException()
     }
 
     private fun convertTimestampToDate(timestamp: Timestamp): Date {
