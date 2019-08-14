@@ -92,6 +92,11 @@ class SetsTest {
     }
 
     @Test
+    fun testGetSetsFailure() {
+        invokeGet(mvc!!, "/api/sets", emptyMap()).andExpect(status().isBadRequest).andReturn()
+    }
+
+    @Test
     fun testDeleteSet() {
         val result = invokeDelete(mvc!!, "/api/sets/{setId}", pathVariables = arrayListOf("set id 1")).andExpect(status().isOk).andReturn()
         val responseSet = JsonUtils.jsonToObject(result.response.contentAsString, SetRow::class.java)
