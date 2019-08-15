@@ -10,4 +10,8 @@ class HeartbeatInterface {
     @CrossOrigin
     @RequestMapping("/api/heartbeat", method = [(GET)])
     fun getHeartbeat() = mapOf("status" to "ok")
+
+    @CrossOrigin
+    @RequestMapping("/", method = [(GET)])
+    fun hello() = "hello from /-path"
 }

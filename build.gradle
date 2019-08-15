@@ -38,6 +38,7 @@ dependencies {
     compile "org.springframework.boot:spring-boot-starter-jetty:$springBoot_version"
     compile "org.springframework.boot:spring-boot-starter-data-jpa:$springBoot_version"
     compile "org.springframework.boot:spring-boot-starter-jdbc:$springBoot_version"
+    compile "org.springframework.boot:spring-boot-starter-security:$springBoot_version"
 
     // kotlin
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
@@ -48,10 +49,13 @@ dependencies {
     compile "mysql:mysql-connector-java:8.0.17"
 
     // json parsing
-    compile group: 'com.fasterxml.jackson.module', name: 'jackson-module-kotlin', version: '2.9.9'
+    compile "com.fasterxml.jackson.module:jackson-module-kotlin:2.9.9"
 
     // encryption
-    compile group: 'org.jasypt', name: 'jasypt', version: '1.9.3'
+    compile "org.jasypt:jasypt:1.9.3"
+
+    // jwt
+    compile "io.jsonwebtoken:jjwt:0.9.1"
 
     // testing
     testCompile "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"

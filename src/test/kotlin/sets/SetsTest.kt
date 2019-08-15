@@ -132,10 +132,8 @@ class SetsTest {
     @Test
     fun testPostSetFailure() {
         val body = JsonUtils.objectToJson(SetRow(null, "user id 1", null, "Deadlift", 15, Date(System.currentTimeMillis())))
-        val result = invokePost(mvc!!, "/api/sets", body = body, pathVariables = ArrayList()).andExpect(status().isBadRequest).andReturn()
+        invokePost(mvc!!, "/api/sets", body = body, pathVariables = ArrayList()).andExpect(status().isBadRequest).andReturn()
         val foundRows = DatabaseUtils.doQuery(gymlogDataSource!!, "select * from $SETS_TABLE;", emptyMap())
         Assert.assertEquals(1, foundRows.size)
     }
-
-    // todo bad case tests (invalid input etc.)
 }

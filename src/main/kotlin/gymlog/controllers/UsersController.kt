@@ -1,5 +1,7 @@
 package gymlog.controllers
 
 class UsersController {
-    // todo: register user, login user, get current user
+    // todo: register user
+    // todo: login user
+    // todo: get current user
 }
