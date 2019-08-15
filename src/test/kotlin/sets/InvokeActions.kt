@@ -1,5 +1,6 @@
 package sets
 
+import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.ResultActions
@@ -10,12 +11,14 @@ import org.springframework.util.MultiValueMap
 object InvokeActions {
 
     @Throws(Exception::class)
-    fun invokeGet(mvc: MockMvc, url: String, params: Map<String, Any> = emptyMap()): ResultActions {
+    fun invokeGet(mvc: MockMvc, url: String, params: Map<String, Any> = emptyMap(), header: String = "FOOBAR"): ResultActions {
         return if(params.isNotEmpty()) {
             val multiValueMap = convertParamsToMultiValueMap(params)
-            mvc.perform(MockMvcRequestBuilders.get(url).params(multiValueMap).accept(MediaType.APPLICATION_JSON))
+            // todo: enhance header handling
+            mvc.perform(MockMvcRequestBuilders.get(url).params(multiValueMap).header("Authorization", header.substring(6)).accept(MediaType.APPLICATION_JSON))
             } else {
-            mvc.perform(MockMvcRequestBuilders.get(url).accept(MediaType.APPLICATION_JSON))
+            // todo: enhance header handling
+            mvc.perform(MockMvcRequestBuilders.get(url).header("Authorization", header.substring(6)).accept(MediaType.APPLICATION_JSON))
         }
     }
 

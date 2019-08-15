@@ -6,6 +6,7 @@ import gymlog.controllers.SetsController
 import gymlog.utils.DatabaseUtils
 import gymlog.models.Sets.SetRow
 import gymlog.models.Sets.Sets
+import gymlog.security.WebSecurityConfig
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
@@ -29,6 +30,7 @@ import gymlog.services.SetsService.REPETITIONS_COLUMN
 import gymlog.services.SetsService.USER_ID_COLUMN
 import gymlog.services.SetsService.WEIGHT_COLUMN
 import gymlog.utils.JsonUtils
+import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import utils.TestDbUtils
 import java.math.BigDecimal
@@ -71,7 +73,11 @@ class SetsTest {
 
     @Test
     fun testHeartbeat() {
-        val result = invokeGet(mvc!!, "/api/heartbeat").andExpect(status().isOk).andReturn()
+        val body = JsonUtils.objectToJson(mapOf("username" to "admin", "password" to "password"))
+        val tokenResult = invokePost(mvc!!, "/login", body = body, pathVariables = ArrayList()).andExpect(status().isOk).andReturn()
+        val token = tokenResult.response.getHeaderValue("Authorization") as String
+        println(token)
+        val result = invokeGet(mvc!!, "/api/heartbeat", header = token).andExpect(status().isOk).andReturn()
         val response = JsonUtils.jsonToObject(result.response.contentAsString, HashMap::class.java)
         Assert.assertEquals(200, result.response.status)
         Assert.assertEquals("ok", response["status"] as String)
