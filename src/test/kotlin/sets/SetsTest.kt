@@ -73,11 +73,7 @@ class SetsTest {
 
     @Test
     fun testHeartbeat() {
-        val body = JsonUtils.objectToJson(mapOf("username" to "admin", "password" to "password"))
-        val tokenResult = invokePost(mvc!!, "/login", body = body, pathVariables = ArrayList()).andExpect(status().isOk).andReturn()
-        val token = tokenResult.response.getHeaderValue("Authorization") as String
-        println(token)
-        val result = invokeGet(mvc!!, "/api/heartbeat", header = token).andExpect(status().isOk).andReturn()
+        val result = invokeGet(mvc!!, "/api/heartbeat", header = getToken()).andExpect(status().isOk).andReturn()
         val response = JsonUtils.jsonToObject(result.response.contentAsString, HashMap::class.java)
         Assert.assertEquals(200, result.response.status)
         Assert.assertEquals("ok", response["status"] as String)
@@ -85,7 +81,7 @@ class SetsTest {
 
     @Test
     fun testGetSets() {
-        val result = invokeGet(mvc!!, "/api/sets", mapOf("userId" to "user id 1")).andExpect(status().isOk).andReturn()
+        val result = invokeGet(mvc!!, "/api/sets", mapOf("userId" to "user id 1"), getToken()).andExpect(status().isOk).andReturn()
         val response = JsonUtils.jsonToObject(result.response.contentAsString, Sets::class.java)
         val row = response.sets.first()
         Assert.assertEquals(1, response.total)
@@ -99,7 +95,7 @@ class SetsTest {
 
     @Test
     fun testGetSetsFailure() {
-        invokeGet(mvc!!, "/api/sets", emptyMap()).andExpect(status().isBadRequest).andReturn()
+        invokeGet(mvc!!, "/api/sets", emptyMap(), getToken()).andExpect(status().isBadRequest).andReturn()
     }
 
     @Test
@@ -141,5 +137,11 @@ class SetsTest {
         invokePost(mvc!!, "/api/sets", body = body, pathVariables = ArrayList()).andExpect(status().isBadRequest).andReturn()
         val foundRows = DatabaseUtils.doQuery(gymlogDataSource!!, "select * from $SETS_TABLE;", emptyMap())
         Assert.assertEquals(1, foundRows.size)
+    }
+
+    private fun getToken(): String {
+        val body = JsonUtils.objectToJson(mapOf("username" to "admin", "password" to "password"))
+        val tokenResult = invokePost(mvc!!, "/login", body = body, pathVariables = ArrayList()).andExpect(status().isOk).andReturn()
+        return tokenResult.response.getHeaderValue("Authorization") as String
     }
 }

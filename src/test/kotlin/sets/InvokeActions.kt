@@ -14,10 +14,8 @@ object InvokeActions {
     fun invokeGet(mvc: MockMvc, url: String, params: Map<String, Any> = emptyMap(), header: String = "FOOBAR"): ResultActions {
         return if(params.isNotEmpty()) {
             val multiValueMap = convertParamsToMultiValueMap(params)
-            // todo: enhance header handling
             mvc.perform(MockMvcRequestBuilders.get(url).params(multiValueMap).header("Authorization", header.substring(6)).accept(MediaType.APPLICATION_JSON))
             } else {
-            // todo: enhance header handling
             mvc.perform(MockMvcRequestBuilders.get(url).header("Authorization", header.substring(6)).accept(MediaType.APPLICATION_JSON))
         }
     }
