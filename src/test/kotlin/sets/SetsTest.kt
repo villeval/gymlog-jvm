@@ -32,6 +32,7 @@ import gymlog.services.SetsService.WEIGHT_COLUMN
 import gymlog.utils.JsonUtils
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import sets.InvokeActions.invokeAuthentication
 import utils.TestDbUtils
 import java.math.BigDecimal
 import java.util.*
@@ -73,7 +74,7 @@ class SetsTest {
 
     @Test
     fun testHeartbeat() {
-        val result = invokeGet(mvc!!, "/api/heartbeat", header = getToken()).andExpect(status().isOk).andReturn()
+        val result = invokeGet(mvc!!, "/api/heartbeat", token = getToken()).andExpect(status().isOk).andReturn()
         val response = JsonUtils.jsonToObject(result.response.contentAsString, HashMap::class.java)
         Assert.assertEquals(200, result.response.status)
         Assert.assertEquals("ok", response["status"] as String)
@@ -81,7 +82,7 @@ class SetsTest {
 
     @Test
     fun testGetSets() {
-        val result = invokeGet(mvc!!, "/api/sets", mapOf("userId" to "user id 1"), getToken()).andExpect(status().isOk).andReturn()
+        val result = invokeGet(mvc!!, "/api/sets", mapOf("userId" to "user id 1"), token = getToken()).andExpect(status().isOk).andReturn()
         val response = JsonUtils.jsonToObject(result.response.contentAsString, Sets::class.java)
         val row = response.sets.first()
         Assert.assertEquals(1, response.total)
@@ -95,12 +96,12 @@ class SetsTest {
 
     @Test
     fun testGetSetsFailure() {
-        invokeGet(mvc!!, "/api/sets", emptyMap(), getToken()).andExpect(status().isBadRequest).andReturn()
+        invokeGet(mvc!!, "/api/sets", emptyMap(), token = getToken()).andExpect(status().isBadRequest).andReturn()
     }
 
     @Test
     fun testDeleteSet() {
-        val result = invokeDelete(mvc!!, "/api/sets/{setId}", pathVariables = arrayListOf("set id 1")).andExpect(status().isOk).andReturn()
+        val result = invokeDelete(mvc!!, "/api/sets/{setId}", pathVariables = arrayListOf("set id 1"), token = getToken()).andExpect(status().isOk).andReturn()
         val responseSet = JsonUtils.jsonToObject(result.response.contentAsString, SetRow::class.java)
         Assert.assertEquals("set id 1", responseSet.id)
         val foundRows = DatabaseUtils.doQuery(gymlogDataSource!!, "select * from $SETS_TABLE where $USER_ID_COLUMN = ? and $SET_ID_COLUMN = ?", mapOf(1 to "user id 1", 2 to "set id 1"))
@@ -109,7 +110,7 @@ class SetsTest {
 
     @Test
     fun testDeleteSetFailure() {
-        val result = invokeDelete(mvc!!, "/api/sets/{setId}", pathVariables = arrayListOf("not found")).andExpect(status().isNoContent).andReturn()
+        val result = invokeDelete(mvc!!, "/api/sets/{setId}", pathVariables = arrayListOf("not found"), token = getToken()).andExpect(status().isNoContent).andReturn()
         val foundRows = DatabaseUtils.doQuery(gymlogDataSource!!, "select * from $SETS_TABLE", emptyMap())
         Assert.assertEquals(204, result.response.status)
         Assert.assertEquals(1, foundRows.size)
@@ -118,7 +119,7 @@ class SetsTest {
     @Test
     fun testPostSet() {
         val body = JsonUtils.objectToJson(SetRow(null, "user id 1", BigDecimal(105.0), "Deadlift", 15, Date(System.currentTimeMillis())))
-        val result = invokePost(mvc!!, "/api/sets", body = body, pathVariables = ArrayList()).andExpect(status().isOk).andReturn()
+        val result = invokePost(mvc!!, "/api/sets", body = body, pathVariables = ArrayList(), token = getToken()).andExpect(status().isOk).andReturn()
         val responseSet = JsonUtils.jsonToObject(result.response.contentAsString, SetRow::class.java)
         Assert.assertNotNull(responseSet.id)
         Assert.assertEquals("user id 1", responseSet.userId)
@@ -134,14 +135,14 @@ class SetsTest {
     @Test
     fun testPostSetFailure() {
         val body = JsonUtils.objectToJson(SetRow(null, "user id 1", null, "Deadlift", 15, Date(System.currentTimeMillis())))
-        invokePost(mvc!!, "/api/sets", body = body, pathVariables = ArrayList()).andExpect(status().isBadRequest).andReturn()
+        invokePost(mvc!!, "/api/sets", body = body, pathVariables = ArrayList(), token = getToken()).andExpect(status().isBadRequest).andReturn()
         val foundRows = DatabaseUtils.doQuery(gymlogDataSource!!, "select * from $SETS_TABLE;", emptyMap())
         Assert.assertEquals(1, foundRows.size)
     }
 
     private fun getToken(): String {
         val body = JsonUtils.objectToJson(mapOf("username" to "admin", "password" to "password"))
-        val tokenResult = invokePost(mvc!!, "/login", body = body, pathVariables = ArrayList()).andExpect(status().isOk).andReturn()
-        return tokenResult.response.getHeaderValue("Authorization") as String
+        val tokenResult = invokeAuthentication(mvc!!, "/login", body = body, pathVariables = ArrayList()).andExpect(status().isOk).andReturn()
+        return (tokenResult.response.getHeaderValue("Authorization") as String).substring(6)
     }
 }
