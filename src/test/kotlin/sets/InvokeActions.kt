@@ -60,23 +60,13 @@ object InvokeActions {
     }
 
     @Throws(Exception::class)
-    fun invokeAuthentication(mvc: MockMvc, url: String, params: Map<String, Any> = emptyMap(), pathVariables: ArrayList<Any>, body: String): ResultActions {
-        return if(params.isNotEmpty()) {
-            val multiValueMap = convertParamsToMultiValueMap(params)
-            when (pathVariables.size) {
-                0 -> mvc.perform(MockMvcRequestBuilders.post(url).content(body).contentType(MediaType.APPLICATION_JSON).params(multiValueMap).accept(MediaType.APPLICATION_JSON))
-                1 -> mvc.perform(MockMvcRequestBuilders.post(url, pathVariables[0]).content(body).contentType(MediaType.APPLICATION_JSON).params(multiValueMap).accept(MediaType.APPLICATION_JSON))
-                2 -> mvc.perform(MockMvcRequestBuilders.post(url, pathVariables[0], pathVariables[1]).content(body).contentType(MediaType.APPLICATION_JSON).params(multiValueMap).accept(MediaType.APPLICATION_JSON))
-                else -> throw java.lang.Exception("too many path variables")
-            }
-        } else {
-            when (pathVariables.size) {
-                0 -> mvc.perform(MockMvcRequestBuilders.post(url).content(body).contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
-                1 -> mvc.perform(MockMvcRequestBuilders.post(url, pathVariables[0]).content(body).contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
-                2 -> mvc.perform(MockMvcRequestBuilders.post(url, pathVariables[0], pathVariables[1]).content(body).contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
-                else -> throw java.lang.Exception("too many path variables")
-            }
-        }
+    fun invokeAuthentication(mvc: MockMvc, url: String, body: String): ResultActions {
+        return mvc.perform(MockMvcRequestBuilders.post(url).content(body).contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
+    }
+
+    @Throws(Exception::class)
+    fun invokeLogout(mvc: MockMvc, url: String): ResultActions {
+        return mvc.perform(MockMvcRequestBuilders.get(url))
     }
 
     private fun convertParamsToMultiValueMap(params: Map<String, Any>): MultiValueMap<String, String> {

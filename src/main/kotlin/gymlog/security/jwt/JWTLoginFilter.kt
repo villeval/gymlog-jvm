@@ -14,7 +14,6 @@ import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 import java.io.IOException
 
-
 class JWTLoginFilter(url: String, authenticationManager: AuthenticationManager) : AbstractAuthenticationProcessingFilter(AntPathRequestMatcher(url)) {
     private val tokenAuthenticationService: TokenAuthenticationService
 
@@ -32,7 +31,6 @@ class JWTLoginFilter(url: String, authenticationManager: AuthenticationManager) 
 
     @Throws(IOException::class, ServletException::class)
     override fun successfulAuthentication(request: HttpServletRequest, response: HttpServletResponse, chain: FilterChain, authResult: Authentication) {
-//        super.successfulAuthentication(request, response, chain, authResult) // todo check if needed
         tokenAuthenticationService.addAuthentication(response, authResult.name)
     }
 }
