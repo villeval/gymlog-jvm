@@ -2,20 +2,33 @@ package gymlog.security
 
 import gymlog.security.jwt.JWTAuthenticationFilter
 import gymlog.security.jwt.JWTLoginFilter
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
+import org.springframework.security.core.userdetails.User
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
-import org.springframework.security.provisioning.InMemoryUserDetailsManager
-import org.springframework.security.core.userdetails.User.withDefaultPasswordEncoder
-import org.springframework.security.core.userdetails.User.UserBuilder
+import javax.sql.DataSource
 
 @Configuration
 @EnableWebSecurity
 class WebSecurityConfig: WebSecurityConfigurerAdapter() {
+
+    @Autowired
+    @Qualifier("gymlogdatasource")
+    private val gymlogDataSource: DataSource? = null
+
+    @Bean
+    fun passwordEncoder() : PasswordEncoder {
+        return BCryptPasswordEncoder()
+    }
 
     override fun configure(http: HttpSecurity) {
         // disable caching
@@ -36,9 +49,16 @@ class WebSecurityConfig: WebSecurityConfigurerAdapter() {
 
     override fun configure(auth: AuthenticationManagerBuilder) {
         // create a default account
-        auth.inMemoryAuthentication()
-                .withUser("admin")
-                .password("{noop}password")
-                .roles("ADMIN")
+//        auth.inMemoryAuthentication()
+//                .withUser("admin")
+//                .password("{noop}password")
+//                .roles("ADMIN")
+
+        auth.jdbcAuthentication()
+                .dataSource(gymlogDataSource)
+                .withDefaultSchema()
+                .withUser(User.withUsername("user")
+                        .password(passwordEncoder().encode("password"))
+                        .roles("USER"))
     }
 }

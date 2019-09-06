@@ -141,19 +141,8 @@ class SetsTest {
         Assert.assertEquals(1, foundRows.size)
     }
 
-    @Test
-    fun testLogout() {
-        val token = getToken()
-        val result = invokeGet(mvc!!, "/api/heartbeat", token = token).andExpect(status().isOk).andReturn()
-        val response = JsonUtils.jsonToObject(result.response.contentAsString, HashMap::class.java)
-        Assert.assertEquals(200, result.response.status)
-        Assert.assertEquals("ok", response["status"] as String)
-        println(invokeLogout(mvc, "/logout"))
-        invokeGet(mvc, "/api/heartbeat", token = token).andExpect(status().isForbidden).andReturn()
-    }
-
     private fun getToken(): String {
-        val body = JsonUtils.objectToJson(mapOf("username" to "admin", "password" to "password"))
+        val body = JsonUtils.objectToJson(mapOf("username" to "user", "password" to "password"))
         val tokenResult = invokeAuthentication(mvc!!, "/login", body = body).andExpect(status().isOk).andReturn()
         return (tokenResult.response.getHeaderValue("Authorization") as String).substring(6)
     }
