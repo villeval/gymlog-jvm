@@ -41,7 +41,8 @@ object DatabaseUtils {
                                 "java.lang.Long" -> resultSet.getLong(index)
                                 "java.lang.Double" -> resultSet.getDouble(index)
                                 "java.math.BigDecimal" -> resultSet.getBigDecimal(index)
-                                else -> throw Exception("unknown datatype")
+                                "java.lang.Boolean" -> resultSet.getBoolean(index)
+                                else -> throw Exception("unknown datatype: $type")
                             }
                             row[columnName] = value
                         }

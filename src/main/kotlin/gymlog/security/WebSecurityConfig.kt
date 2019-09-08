@@ -34,7 +34,6 @@ class WebSecurityConfig: WebSecurityConfigurerAdapter() {
         // disable caching
         http.headers().cacheControl()
 
-        // todo: logout
         http.csrf().disable() // disable csrf for requests
                 .authorizeRequests()
                 .antMatchers("/").permitAll() // todo: check if needed at all later

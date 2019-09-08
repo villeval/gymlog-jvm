@@ -15,9 +15,6 @@ class SetsController {
     @Qualifier("gymlogdatasource")
     private val gymlogDataSource: DataSource? = null
 
-    // todo: user authentication for these routes (private), maybe jwt like in node app?
-    // todo: check the rest resource paths
-
     @CrossOrigin
     @RequestMapping("/api/sets", method = [(RequestMethod.GET)])
     fun getSets(@RequestParam(value = "userId") userId: String, @RequestParam(value = "skip") skip: Int?, @RequestParam(value = "limit") limit: Int?): Sets.Sets {
