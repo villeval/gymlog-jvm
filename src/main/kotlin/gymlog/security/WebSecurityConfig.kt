@@ -47,17 +47,7 @@ class WebSecurityConfig: WebSecurityConfigurerAdapter() {
     }
 
     override fun configure(auth: AuthenticationManagerBuilder) {
-        // create a default account
-//        auth.inMemoryAuthentication()
-//                .withUser("admin")
-//                .password("{noop}password")
-//                .roles("ADMIN")
-
         auth.jdbcAuthentication()
                 .dataSource(gymlogDataSource)
-                .withDefaultSchema()
-                .withUser(User.withUsername("user")
-                        .password(passwordEncoder().encode("password"))
-                        .roles("USER"))
     }
 }
