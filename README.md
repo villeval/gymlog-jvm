@@ -3,8 +3,8 @@
 ## Work in progress!
 
 ### TODO:
-- logging
-- form validations
 - APIs for user registration, editing and deletion
+- form validations
 - validate password encryption
+- configure logging
 - new front-end or porting the implementation from gymlog-js-project
