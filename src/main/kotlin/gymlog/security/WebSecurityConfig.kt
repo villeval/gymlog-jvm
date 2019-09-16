@@ -49,5 +49,7 @@ class WebSecurityConfig: WebSecurityConfigurerAdapter() {
     override fun configure(auth: AuthenticationManagerBuilder) {
         auth.jdbcAuthentication()
                 .dataSource(gymlogDataSource)
+                .usersByUsernameQuery("select username, password, enabled from gymlog_db.users where username = ?")
+                .authoritiesByUsernameQuery("select username, authority from gymlog_db.authorities where username = ?")
     }
 }

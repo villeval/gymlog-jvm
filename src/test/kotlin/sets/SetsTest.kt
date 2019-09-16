@@ -65,12 +65,6 @@ class SetsTest {
         TestDbUtils.executeSqlFile(gymlogDataSource, "create-auth-tables.sql")
     }
 
-    @After
-    fun clearTest() {
-        TestDbUtils.executeSql(gymlogDataSource, "DROP TABLE users;")
-        TestDbUtils.executeSql(gymlogDataSource, "DROP TABLE authorities;")
-    }
-
     @Test
     @Throws(Exception::class)
     fun contextLoads() {
