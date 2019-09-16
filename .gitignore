@@ -7,3 +7,4 @@ gradle/
 gradlew
 gradlew.bat
 
+/env_variables_dev.properties

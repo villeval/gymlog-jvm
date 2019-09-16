@@ -64,11 +64,6 @@ object InvokeActions {
         return mvc.perform(MockMvcRequestBuilders.post(url).content(body).contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
     }
 
-    @Throws(Exception::class)
-    fun invokeLogout(mvc: MockMvc, url: String): ResultActions {
-        return mvc.perform(MockMvcRequestBuilders.get(url))
-    }
-
     private fun convertParamsToMultiValueMap(params: Map<String, Any>): MultiValueMap<String, String> {
         val multiValueMap: MultiValueMap<String, String> = LinkedMultiValueMap()
         params.map { param ->
