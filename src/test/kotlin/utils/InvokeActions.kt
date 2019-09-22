@@ -109,6 +109,11 @@ object InvokeActions {
         }
     }
 
+    @Throws(Exception::class)
+    fun invokeAuthentication(mvc: MockMvc, url: String, body: String): ResultActions {
+        return mvc.perform(MockMvcRequestBuilders.post(url).content(body).contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
+    }
+
     private fun convertParamsToMultiValueMap(params: Map<String, Any>): MultiValueMap<String, String> {
         val multiValueMap: MultiValueMap<String, String> = LinkedMultiValueMap()
         params.map { param ->

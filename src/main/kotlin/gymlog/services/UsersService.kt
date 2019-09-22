@@ -9,11 +9,13 @@ import javax.sql.DataSource
 object UsersService {
 
     private const val USERS_TABLE = "gymlog_db.users"
-
-    private const val getUserQuery = "select * from $USERS_TABLE where username = ?;"
-    private const val insertUserQuery = "insert into $USERS_TABLE (username, password, enabled) values (?, ?, ?);"
+    private const val AUTHORITIES_TABLE = "gymlog_db.authorities"
 
     private const val USER_ENABLED = 1
+
+    private const val getUserQuery = "select * from $USERS_TABLE where username = ?;"
+    private const val insertUserQuery = "insert into $USERS_TABLE (username, password, enabled) values (?, ?, $USER_ENABLED);"
+    private const val insertUserAuthoritiesQuery = "insert into $AUTHORITIES_TABLE (username, authority) values (?, 'ROLE_USER');"
 
     fun checkIfUserExists(dataSource: DataSource, user: User): Boolean {
         val params = mapOf(1 to user.username)
@@ -21,11 +23,11 @@ object UsersService {
         return results.any()
     }
 
-    fun insertUser(dataSource: DataSource, user: User): User {
+    fun registerUser(dataSource: DataSource, user: User): User {
         val encoder = WebSecurityConfig.passwordEncoder()
-        val params = mapOf(1 to user.username, 2 to encoder.encode(user.password), 3 to USER_ENABLED )
-        val result = DatabaseUtils.doUpdate(dataSource, insertUserQuery, params)
-        return if (result == 1) user else throw DatabaseOperationFailedException()
+        val userParams = mapOf(1 to user.username, 2 to encoder.encode(user.password))
+        val userResult = DatabaseUtils.doUpdate(dataSource, insertUserQuery, userParams)
+        val authorityResult = DatabaseUtils.doUpdate(dataSource, insertUserAuthoritiesQuery, mapOf(1 to user.username))
+        return if(userResult == 1 && authorityResult == 1) user else throw DatabaseOperationFailedException()
     }
-
 }

@@ -1,6 +1,5 @@
 package sets
 
-import auth.InvokeAuthActions.invokeAuthentication
 import gymlog.Application
 import gymlog.controllers.SetsController
 import gymlog.models.Sets.SetRow
@@ -23,6 +22,7 @@ import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.junit4.SpringRunner
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import utils.InvokeActions.invokeAuthentication
 import utils.InvokeActions.invokeDeleteWithAuth
 import utils.InvokeActions.invokeGetWithAuth
 import utils.InvokeActions.invokePostWithAuth

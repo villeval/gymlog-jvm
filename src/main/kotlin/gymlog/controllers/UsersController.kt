@@ -15,17 +15,15 @@ class UsersController {
     @Qualifier("gymlogdatasource")
     private val gymlogDataSource: DataSource? = null
 
-    // todo register user
     @CrossOrigin
     @RequestMapping("/register", method = [(RequestMethod.POST)])
     fun registerUser(@RequestBody user: User): Any {
         return if(UsersService.checkIfUserExists(gymlogDataSource!!, user)) {
             UserErrors("Username already exists", null)
         } else {
-            UsersService.insertUser(gymlogDataSource, user)
+            UsersService.registerUser(gymlogDataSource, user)
         }
     }
 
-    // todo get current user
-    // todo delete user
+    // todo get current user, if needed
 }

@@ -26,6 +26,14 @@ class WebSecurityConfig: WebSecurityConfigurerAdapter() {
     @Qualifier("gymlogdatasource")
     private val gymlogDataSource: DataSource? = null
 
+    // needed for encrypted passwords
+    @Bean
+    fun passwordEncoder() : PasswordEncoder {
+        // todo: switch to use secure random with encrypted prop
+        return BCryptPasswordEncoder(10, SecureRandom(("changethis").toByteArray()))
+//        return BCryptPasswordEncoder()
+    }
+
     override fun configure(http: HttpSecurity) {
         // disable caching
         http.headers().cacheControl()
@@ -46,13 +54,16 @@ class WebSecurityConfig: WebSecurityConfigurerAdapter() {
     override fun configure(auth: AuthenticationManagerBuilder) {
         auth.jdbcAuthentication()
                 .dataSource(gymlogDataSource)
+                .passwordEncoder(passwordEncoder())
                 .usersByUsernameQuery("select username, password, enabled from gymlog_db.users where username = ?")
                 .authoritiesByUsernameQuery("select username, authority from gymlog_db.authorities where username = ?")
     }
 
     companion object {
         fun passwordEncoder() : PasswordEncoder {
+            // todo: switch secure random to encrypted prop
             return BCryptPasswordEncoder(10, SecureRandom(("changethis").toByteArray()))
+//            return BCryptPasswordEncoder()
         }
     }
 }

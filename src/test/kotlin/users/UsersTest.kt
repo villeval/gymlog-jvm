@@ -1,6 +1,5 @@
 package users
 
-import auth.InvokeAuthActions.invokeAuthentication
 import gymlog.Application
 
 import gymlog.controllers.UsersController
@@ -29,6 +28,9 @@ import gymlog.services.SetsService.USER_ID_COLUMN
 import gymlog.services.SetsService.WEIGHT_COLUMN
 import gymlog.utils.JsonUtils
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import utils.InvokeActions
+import utils.InvokeActions.invokeAuthentication
+import utils.InvokeActions.invokeGetWithAuth
 import utils.InvokeActions.invokePost
 import utils.TestDbUtils
 import kotlin.collections.ArrayList
@@ -94,9 +96,19 @@ class UsersTest {
         Assert.assertEquals(1, foundRows.size)
     }
 
-    // todo login user
-    // todo test get current user
-    // todo delete user
+    @Test
+    fun testHeartbeatWithRegisterUser() {
+        val body = JsonUtils.objectToJson(User("johndoe", "password"))
+        invokePost(mvc!!, "/register", body = body, pathVariables = ArrayList()).andExpect(status().isOk).andReturn()
+        val foundRows = DatabaseUtils.doQuery(gymlogDataSource!!, "select * from gymlog_db.users", emptyMap())
+        println(foundRows)
+
+        val result = InvokeActions.invokeGetWithAuth(mvc, "/api/heartbeat", token = getToken("johndoe", "password")).andExpect(status().isOk).andReturn()
+        val response = JsonUtils.jsonToObject(result.response.contentAsString, HashMap::class.java)
+        println(response)
+        Assert.assertEquals(200, result.response.status)
+        Assert.assertEquals("ok", response["status"] as String)
+    }
 
     private fun getToken(user: String, password: String): String {
         val body = JsonUtils.objectToJson(mapOf("username" to user, "password" to password))
