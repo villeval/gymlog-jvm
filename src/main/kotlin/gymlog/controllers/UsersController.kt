@@ -5,6 +5,7 @@ import gymlog.models.UserErrors
 import gymlog.services.UsersService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
 import javax.sql.DataSource
 
@@ -24,6 +25,4 @@ class UsersController {
             UsersService.registerUser(gymlogDataSource, user)
         }
     }
-
-    // todo get current user, if needed
 }

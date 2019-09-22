@@ -13,5 +13,11 @@ CREATE TABLE gymlog_db.authorities (
 INSERT INTO gymlog_db.users (username, password, enabled)
   values ('user', '$2a$10$8.UnVuG9HHgffUDAlk8qfOuVGkqRzgVymGe07xd00DMxs.AQubh4a', 1);
 
+INSERT INTO gymlog_db.users (username, password, enabled)
+  values ('notfound', '$2a$10$8.UnVuG9HHgffUDAlk8qfOuVGkqRzgVymGe07xd00DMxs.AQubh4a', 1);
+
 INSERT INTO gymlog_db.authorities (username, authority)
   values ('user', 'ROLE_USER');
+
+INSERT INTO gymlog_db.authorities (username, authority)
+  values ('notfound', 'ROLE_USER');

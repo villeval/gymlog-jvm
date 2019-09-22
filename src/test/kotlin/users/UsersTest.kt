@@ -113,6 +113,6 @@ class UsersTest {
     private fun getToken(user: String, password: String): String {
         val body = JsonUtils.objectToJson(mapOf("username" to user, "password" to password))
         val tokenResult = invokeAuthentication(mvc!!, "/login", body = body).andExpect(status().isOk).andReturn()
-        return (tokenResult.response.getHeaderValue("Authorization") as String).substring(6)
+        return (tokenResult.response.getHeaderValue("Authorization") as String)
     }
 }

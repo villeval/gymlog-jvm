@@ -3,6 +3,7 @@ package gymlog.services
 import gymlog.exceptions.DatabaseOperationFailedException
 import gymlog.models.User
 import gymlog.security.WebSecurityConfig
+import gymlog.security.jwt.TokenAuthenticationService
 import gymlog.utils.DatabaseUtils
 import javax.sql.DataSource
 
@@ -30,4 +31,6 @@ object UsersService {
         val authorityResult = DatabaseUtils.doUpdate(dataSource, insertUserAuthoritiesQuery, mapOf(1 to user.username))
         return if(userResult == 1 && authorityResult == 1) user else throw DatabaseOperationFailedException()
     }
+
+
 }

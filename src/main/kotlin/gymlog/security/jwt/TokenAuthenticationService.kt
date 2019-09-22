@@ -8,7 +8,7 @@ import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
 class TokenAuthenticationService {
-    private val expirationTime = 1000 * 60 * 60 * 24 * 10 // 10 days // todo: change expiration
+    private val expirationTime = 1000 * 60 * 60 * 24 * 1 // 10 days
     private val secret = "ThisIsASecret" // todo: change to props
     private val tokenPrefix = "Bearer"
     private val headerString = "Authorization"
@@ -29,7 +29,7 @@ class TokenAuthenticationService {
             // parse the token
             Jwts.parser()
                 .setSigningKey(secret)
-                .parseClaimsJws(token)
+                .parseClaimsJws(token.substring(6))
                 .body
                 .subject
         } else null

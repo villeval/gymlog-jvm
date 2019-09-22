@@ -7,4 +7,4 @@ CREATE TABLE IF NOT EXISTS gymlog_db.SETS (
     CREATED_DATE timestamp
 );
 
-INSERT INTO gymlog_db.SETS VALUES ('set id 1', 'user id 1', 'Squat', 102.5, 10, '2019-01-01 00:00:00');
+INSERT INTO gymlog_db.SETS VALUES ('set id 1', 'user', 'Squat', 102.5, 10, '2019-01-01 00:00:00');
