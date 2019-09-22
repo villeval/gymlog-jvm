@@ -15,6 +15,7 @@ import org.springframework.security.core.userdetails.User
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+import java.security.SecureRandom
 import javax.sql.DataSource
 
 @Configuration
@@ -25,19 +26,15 @@ class WebSecurityConfig: WebSecurityConfigurerAdapter() {
     @Qualifier("gymlogdatasource")
     private val gymlogDataSource: DataSource? = null
 
-    @Bean
-    fun passwordEncoder() : PasswordEncoder {
-        return BCryptPasswordEncoder()
-    }
-
     override fun configure(http: HttpSecurity) {
         // disable caching
         http.headers().cacheControl()
 
         http.csrf().disable() // disable csrf for requests
                 .authorizeRequests()
-                .antMatchers("/").permitAll() // todo: check if needed at all later
+                .antMatchers("/").permitAll() // todo: check if needed at all later for landing
                 .antMatchers(HttpMethod.POST, "/login").permitAll()
+                .antMatchers(HttpMethod.POST, "/register").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 // filtering login requests
@@ -51,5 +48,11 @@ class WebSecurityConfig: WebSecurityConfigurerAdapter() {
                 .dataSource(gymlogDataSource)
                 .usersByUsernameQuery("select username, password, enabled from gymlog_db.users where username = ?")
                 .authoritiesByUsernameQuery("select username, authority from gymlog_db.authorities where username = ?")
+    }
+
+    companion object {
+        fun passwordEncoder() : PasswordEncoder {
+            return BCryptPasswordEncoder(10, SecureRandom(("changethis").toByteArray()))
+        }
     }
 }

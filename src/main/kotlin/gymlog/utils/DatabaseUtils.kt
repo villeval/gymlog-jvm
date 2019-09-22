@@ -1,9 +1,10 @@
 package gymlog.utils
 
-import org.slf4j.Logger
 import java.math.BigDecimal
-import java.sql.*
-import java.util.logging.Level
+import java.sql.Connection
+import java.sql.Date
+import java.sql.SQLException
+import java.sql.Timestamp
 import javax.sql.DataSource
 
 object DatabaseUtils {

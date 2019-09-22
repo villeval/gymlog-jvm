@@ -1,11 +1,15 @@
 package sets
 
+import auth.InvokeAuthActions.invokeAuthentication
 import gymlog.Application
-import sets.InvokeActions.invokeDelete
 import gymlog.controllers.SetsController
-import gymlog.utils.DatabaseUtils
 import gymlog.models.Sets.SetRow
 import gymlog.models.Sets.Sets
+import gymlog.services.SetsService.SETS_TABLE
+import gymlog.services.SetsService.SET_ID_COLUMN
+import gymlog.services.SetsService.USER_ID_COLUMN
+import gymlog.utils.DatabaseUtils
+import gymlog.utils.JsonUtils
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
@@ -17,24 +21,15 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.junit4.SpringRunner
-import javax.sql.DataSource
 import org.springframework.test.web.servlet.MockMvc
-import sets.InvokeActions.invokeGet
-import sets.InvokeActions.invokePost
-import gymlog.services.SetsService.CREATED_DATE_COLUMN
-import gymlog.services.SetsService.EXERCISE_COLUMN
-import gymlog.services.SetsService.SETS_TABLE
-import gymlog.services.SetsService.SET_ID_COLUMN
-import gymlog.services.SetsService.REPETITIONS_COLUMN
-import gymlog.services.SetsService.USER_ID_COLUMN
-import gymlog.services.SetsService.WEIGHT_COLUMN
-import gymlog.utils.JsonUtils
-import org.junit.After
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import sets.InvokeActions.invokeAuthentication
+import utils.InvokeActions.invokeDeleteWithAuth
+import utils.InvokeActions.invokeGetWithAuth
+import utils.InvokeActions.invokePostWithAuth
 import utils.TestDbUtils
 import java.math.BigDecimal
 import java.util.*
+import javax.sql.DataSource
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
@@ -60,8 +55,7 @@ class SetsTest {
     @Before
     fun init() {
         TestDbUtils.createSchema(gymlogDataSource, "gymlog_db")
-        TestDbUtils.executeSql(gymlogDataSource, "CREATE TABLE IF NOT EXISTS $SETS_TABLE ($SET_ID_COLUMN varchar(100), $USER_ID_COLUMN varchar(100), $EXERCISE_COLUMN varchar(100), $WEIGHT_COLUMN decimal(10,1), $REPETITIONS_COLUMN integer, $CREATED_DATE_COLUMN timestamp);")
-        TestDbUtils.executeSql(gymlogDataSource, "INSERT INTO $SETS_TABLE VALUES ('set id 1', 'user id 1', 'Squat', 102.5, 10, '2019-01-01 00:00:00');")
+        TestDbUtils.executeSqlFile(gymlogDataSource, "create-sets-tables.sql")
         TestDbUtils.executeSqlFile(gymlogDataSource, "create-auth-tables.sql")
     }
 
@@ -75,7 +69,7 @@ class SetsTest {
 
     @Test
     fun testHeartbeat() {
-        val result = invokeGet(mvc!!, "/api/heartbeat", token = getToken("user", "pass")).andExpect(status().isOk).andReturn()
+        val result = invokeGetWithAuth(mvc!!, "/api/heartbeat", token = getToken("user", "pass")).andExpect(status().isOk).andReturn()
         val response = JsonUtils.jsonToObject(result.response.contentAsString, HashMap::class.java)
         Assert.assertEquals(200, result.response.status)
         Assert.assertEquals("ok", response["status"] as String)
@@ -83,7 +77,7 @@ class SetsTest {
 
     @Test
     fun testGetSets() {
-        val result = invokeGet(mvc!!, "/api/sets", mapOf("userId" to "user id 1"), token = getToken("user", "pass")).andExpect(status().isOk).andReturn()
+        val result = invokeGetWithAuth(mvc!!, "/api/sets", mapOf("userId" to "user id 1"), token = getToken("user", "pass")).andExpect(status().isOk).andReturn()
         val response = JsonUtils.jsonToObject(result.response.contentAsString, Sets::class.java)
         val row = response.sets.first()
         Assert.assertEquals(1, response.total)
@@ -97,12 +91,19 @@ class SetsTest {
 
     @Test
     fun testGetSetsFailure() {
-        invokeGet(mvc!!, "/api/sets", emptyMap(), token = getToken("user", "pass")).andExpect(status().isBadRequest).andReturn()
+        invokeGetWithAuth(mvc!!, "/api/sets", emptyMap(), token = getToken("user", "pass")).andExpect(status().isBadRequest).andReturn()
+    }
+
+    @Test
+    fun testGetSetsWithoutResults() {
+        val result = invokeGetWithAuth(mvc!!, "/api/sets", mapOf("userId" to "notfound"), token = getToken("user", "pass")).andExpect(status().isOk).andReturn()
+        val response = JsonUtils.jsonToObject(result.response.contentAsString, Sets::class.java)
+        Assert.assertEquals(0, response.sets.size)
     }
 
     @Test
     fun testDeleteSet() {
-        val result = invokeDelete(mvc!!, "/api/sets/{setId}", pathVariables = arrayListOf("set id 1"), token = getToken("user", "pass")).andExpect(status().isOk).andReturn()
+        val result = invokeDeleteWithAuth(mvc!!, "/api/sets/{setId}", pathVariables = arrayListOf("set id 1"), token = getToken("user", "pass")).andExpect(status().isOk).andReturn()
         val responseSet = JsonUtils.jsonToObject(result.response.contentAsString, SetRow::class.java)
         Assert.assertEquals("set id 1", responseSet.id)
         val foundRows = DatabaseUtils.doQuery(gymlogDataSource!!, "select * from $SETS_TABLE where $USER_ID_COLUMN = ? and $SET_ID_COLUMN = ?", mapOf(1 to "user id 1", 2 to "set id 1"))
@@ -111,7 +112,7 @@ class SetsTest {
 
     @Test
     fun testDeleteSetFailure() {
-        val result = invokeDelete(mvc!!, "/api/sets/{setId}", pathVariables = arrayListOf("not found"), token = getToken("user", "pass")).andExpect(status().isNoContent).andReturn()
+        val result = invokeDeleteWithAuth(mvc!!, "/api/sets/{setId}", pathVariables = arrayListOf("not found"), token = getToken("user", "pass")).andExpect(status().isNoContent).andReturn()
         val foundRows = DatabaseUtils.doQuery(gymlogDataSource!!, "select * from $SETS_TABLE", emptyMap())
         Assert.assertEquals(204, result.response.status)
         Assert.assertEquals(1, foundRows.size)
@@ -120,7 +121,7 @@ class SetsTest {
     @Test
     fun testPostSet() {
         val body = JsonUtils.objectToJson(SetRow(null, "user id 1", BigDecimal(105.0), "Deadlift", 15, Date(System.currentTimeMillis())))
-        val result = invokePost(mvc!!, "/api/sets", body = body, pathVariables = ArrayList(), token = getToken("user", "pass")).andExpect(status().isOk).andReturn()
+        val result = invokePostWithAuth(mvc!!, "/api/sets", body = body, pathVariables = ArrayList(), token = getToken("user", "pass")).andExpect(status().isOk).andReturn()
         val responseSet = JsonUtils.jsonToObject(result.response.contentAsString, SetRow::class.java)
         Assert.assertNotNull(responseSet.id)
         Assert.assertEquals("user id 1", responseSet.userId)
@@ -136,7 +137,7 @@ class SetsTest {
     @Test
     fun testPostSetFailure() {
         val body = JsonUtils.objectToJson(SetRow(null, "user id 1", null, "Deadlift", 15, Date(System.currentTimeMillis())))
-        invokePost(mvc!!, "/api/sets", body = body, pathVariables = ArrayList(), token = getToken("user", "pass")).andExpect(status().isBadRequest).andReturn()
+        invokePostWithAuth(mvc!!, "/api/sets", body = body, pathVariables = ArrayList(), token = getToken("user", "pass")).andExpect(status().isBadRequest).andReturn()
         val foundRows = DatabaseUtils.doQuery(gymlogDataSource!!, "select * from $SETS_TABLE;", emptyMap())
         Assert.assertEquals(1, foundRows.size)
     }
