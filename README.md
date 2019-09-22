@@ -3,7 +3,6 @@
 ## Work in progress!
 
 ### TODO:
-- form validations
-- configure logging
+- configure logging (enable logging to file, mount container log directory to disk)
 - remove cors-option from APIs, if not needed
 - new front-end or porting the implementation from gymlog-js-project
