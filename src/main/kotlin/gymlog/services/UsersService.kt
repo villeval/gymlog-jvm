@@ -24,8 +24,8 @@ object UsersService {
         return results.any()
     }
 
-    fun registerUser(dataSource: DataSource, user: User): User {
-        val encoder = WebSecurityConfig.passwordEncoder()
+    fun registerUser(dataSource: DataSource, user: User, secureRandom: String): User {
+        val encoder = WebSecurityConfig.passwordEncoder(secureRandom)
         val userParams = mapOf(1 to user.username, 2 to encoder.encode(user.password))
         val userResult = DatabaseUtils.doUpdate(dataSource, insertUserQuery, userParams)
         val authorityResult = DatabaseUtils.doUpdate(dataSource, insertUserAuthoritiesQuery, mapOf(1 to user.username))

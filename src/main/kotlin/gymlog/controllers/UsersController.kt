@@ -5,6 +5,7 @@ import gymlog.models.UserErrors
 import gymlog.services.UsersService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
 import javax.sql.DataSource
@@ -16,13 +17,16 @@ class UsersController {
     @Qualifier("gymlogdatasource")
     private val gymlogDataSource: DataSource? = null
 
+    @Value("encoding.random")
+    private val secureRandom: String? = null
+
     @CrossOrigin
     @RequestMapping("/register", method = [(RequestMethod.POST)])
     fun registerUser(@RequestBody user: User): Any {
         return if(UsersService.checkIfUserExists(gymlogDataSource!!, user)) {
             UserErrors("Username already exists", null)
         } else {
-            UsersService.registerUser(gymlogDataSource, user)
+            UsersService.registerUser(gymlogDataSource, user, secureRandom!!)
         }
     }
 }

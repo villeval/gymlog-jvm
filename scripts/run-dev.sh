@@ -5,8 +5,7 @@ EXPOSED_PORT=$1
 APP_NAME=$2
 
 # build jar
-# todo enable tests
-gradle clean build -x test
+gradle clean build
 
 # build docker image for app
 docker stop $APP_NAME && docker rm $APP_NAME

@@ -4,6 +4,7 @@ import gymlog.security.jwt.JWTAuthenticationFilter
 import gymlog.security.jwt.JWTLoginFilter
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
@@ -26,12 +27,13 @@ class WebSecurityConfig: WebSecurityConfigurerAdapter() {
     @Qualifier("gymlogdatasource")
     private val gymlogDataSource: DataSource? = null
 
+    @Value("encoding.random")
+    private val secureRandom: String? = null
+
     // needed for encrypted passwords
     @Bean
     fun passwordEncoder() : PasswordEncoder {
-        // todo: switch to use secure random with encrypted prop
-        return BCryptPasswordEncoder(10, SecureRandom(("changethis").toByteArray()))
-//        return BCryptPasswordEncoder()
+        return BCryptPasswordEncoder(10, SecureRandom((secureRandom!!).toByteArray()))
     }
 
     override fun configure(http: HttpSecurity) {
@@ -40,7 +42,7 @@ class WebSecurityConfig: WebSecurityConfigurerAdapter() {
 
         http.csrf().disable() // disable csrf for requests
                 .authorizeRequests()
-                .antMatchers("/").permitAll() // todo: check if needed at all later for landing
+                .antMatchers("/").permitAll()
                 .antMatchers(HttpMethod.POST, "/login").permitAll()
                 .antMatchers(HttpMethod.POST, "/register").permitAll()
                 .anyRequest().authenticated()
@@ -60,10 +62,8 @@ class WebSecurityConfig: WebSecurityConfigurerAdapter() {
     }
 
     companion object {
-        fun passwordEncoder() : PasswordEncoder {
-            // todo: switch secure random to encrypted prop
-            return BCryptPasswordEncoder(10, SecureRandom(("changethis").toByteArray()))
-//            return BCryptPasswordEncoder()
+        fun passwordEncoder(secureRandom: String) : PasswordEncoder {
+            return BCryptPasswordEncoder(10, SecureRandom((secureRandom).toByteArray()))
         }
     }
 }
