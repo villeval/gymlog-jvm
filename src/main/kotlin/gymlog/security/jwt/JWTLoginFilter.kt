@@ -14,12 +14,12 @@ import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 import java.io.IOException
 
-class JWTLoginFilter(url: String, authenticationManager: AuthenticationManager) : AbstractAuthenticationProcessingFilter(AntPathRequestMatcher(url)) {
+class JWTLoginFilter(url: String, authenticationManager: AuthenticationManager, jwtSecret: String) : AbstractAuthenticationProcessingFilter(AntPathRequestMatcher(url)) {
     private val tokenAuthenticationService: TokenAuthenticationService
 
     init {
         setAuthenticationManager(authenticationManager)
-        tokenAuthenticationService = TokenAuthenticationService()
+        tokenAuthenticationService = TokenAuthenticationService(jwtSecret)
     }
 
     @Throws(AuthenticationException::class, IOException::class, ServletException::class)

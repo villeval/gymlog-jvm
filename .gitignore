@@ -6,5 +6,6 @@ out/**
 gradle/
 gradlew
 gradlew.bat
+logs
 
 /env_variables_dev.properties

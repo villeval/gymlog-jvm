@@ -7,9 +7,10 @@ import java.util.*
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
-class TokenAuthenticationService {
-    private val expirationTime = 1000 * 60 * 60 * 24 * 1 // 10 days
-    private val secret = "ThisIsASecret" // todo: change to props
+class TokenAuthenticationService(jwtSecret: String) {
+
+    private val expirationTime = 1000 * 60 * 60 * 24 * 1 // 1 day
+    private val secret = jwtSecret
     private val tokenPrefix = "Bearer"
     private val headerString = "Authorization"
 
@@ -36,4 +37,10 @@ class TokenAuthenticationService {
         // successful retrieval of the user
         return if(username != null) AuthenticatedUser(username) else null
     }
+
+  /*  companion object {
+        private fun getSecret(): String {
+            return System.getenv("JWT_SECRET")
+        }
+    }*/
 }

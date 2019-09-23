@@ -21,10 +21,13 @@ class SetsController {
     @Qualifier("gymlogdatasource")
     private val gymlogDataSource: DataSource? = null
 
+    @Value("jwt.secret")
+    private val jwtSecret: String? = null
+
     @CrossOrigin
     @RequestMapping("/api/sets", method = [(RequestMethod.GET)])
     fun getSets(@RequestParam(value = "skip") skip: Int?, @RequestParam(value = "limit") limit: Int?, request: HttpServletRequest): Sets.Sets {
-        val authentication = TokenAuthenticationService().getAuthentication(request)
+        val authentication = TokenAuthenticationService(jwtSecret!!).getAuthentication(request)
         val username = authentication?.name ?: throw Exception("Username extraction failed")
         return SetsService.getSets(gymlogDataSource!!, username, skip ?: 0, limit ?: 50)
     }
@@ -34,7 +37,7 @@ class SetsController {
     fun addSet(@RequestBody set: Sets.SetRow, request: HttpServletRequest, response: HttpServletResponse): Sets.SetRow {
         if(set.exercise == null || set.repetitions == null || set.weight == null) throw InvalidInputException()
         else {
-            val authentication = TokenAuthenticationService().getAuthentication(request)
+            val authentication = TokenAuthenticationService(jwtSecret!!).getAuthentication(request)
             if(authentication?.name != set.userId!!) throw UnauthorizedAccessException()
             return SetsService.addSet(gymlogDataSource!!, set.userId, set)
         }
@@ -45,7 +48,7 @@ class SetsController {
     fun deleteSet(@PathVariable(required = true, value = "setId") setId: String?, request: HttpServletRequest): Sets.SetRow {
         if (setId == null) throw PathVariableNotFoundException()
         else {
-            val authentication = TokenAuthenticationService().getAuthentication(request)
+            val authentication = TokenAuthenticationService(jwtSecret!!).getAuthentication(request)
             if(authentication?.name !is String) throw Exception("Username extraction failed")
             return SetsService.deleteSet(gymlogDataSource!!, setId, authentication.name)
         }

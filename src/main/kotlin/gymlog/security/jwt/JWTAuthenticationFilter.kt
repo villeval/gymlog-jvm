@@ -9,11 +9,13 @@ import javax.servlet.ServletResponse
 import javax.servlet.http.HttpServletRequest
 import java.io.IOException
 
-class JWTAuthenticationFilter : GenericFilterBean() {
+class JWTAuthenticationFilter(jwtSecret: String) : GenericFilterBean() {
+
+    private val secret = jwtSecret
 
     @Throws(IOException::class, ServletException::class)
     override fun doFilter(request: ServletRequest, response: ServletResponse, filterChain: FilterChain) {
-        val authentication = TokenAuthenticationService().getAuthentication(request as HttpServletRequest)
+        val authentication = TokenAuthenticationService(jwtSecret = secret).getAuthentication(request as HttpServletRequest)
 
         SecurityContextHolder.getContext().authentication = authentication
         filterChain.doFilter(request, response)

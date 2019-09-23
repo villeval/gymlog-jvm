@@ -30,6 +30,9 @@ class WebSecurityConfig: WebSecurityConfigurerAdapter() {
     @Value("encoding.random")
     private val secureRandom: String? = null
 
+    @Value("jwt.secret")
+    private val jwtSecret: String? = null
+
     // needed for encrypted passwords
     @Bean
     fun passwordEncoder() : PasswordEncoder {
@@ -48,9 +51,9 @@ class WebSecurityConfig: WebSecurityConfigurerAdapter() {
                 .anyRequest().authenticated()
                 .and()
                 // filtering login requests
-                .addFilterBefore(JWTLoginFilter(url = "/login", authenticationManager = authenticationManager()), UsernamePasswordAuthenticationFilter::class.java)
+                .addFilterBefore(JWTLoginFilter(url = "/login", authenticationManager = authenticationManager(), jwtSecret = jwtSecret!!), UsernamePasswordAuthenticationFilter::class.java)
                 // filter other requests to check JWT header
-                .addFilterBefore(JWTAuthenticationFilter(), UsernamePasswordAuthenticationFilter::class.java)
+                .addFilterBefore(JWTAuthenticationFilter(jwtSecret), UsernamePasswordAuthenticationFilter::class.java)
     }
 
     override fun configure(auth: AuthenticationManagerBuilder) {
