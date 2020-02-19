@@ -7,8 +7,7 @@ import org.hsqldb.cmdline.SqlFile
 
 object TestDbUtils {
 
-    fun createSchema(dataSource: DataSource?, schema: String) {
-        if(dataSource == null) throw Exception("Data source not found")
+    fun createSchema(dataSource: DataSource, schema: String) {
         val conn = DatabaseUtils.getConnection(dataSource)
         conn.use {
             conn.prepareStatement("DROP SCHEMA $schema IF EXISTS CASCADE;").executeUpdate()
@@ -16,16 +15,14 @@ object TestDbUtils {
         }
     }
 
-    fun executeSql(dataSource: DataSource?, sql: String) {
-        if(dataSource == null) throw Exception("Data source not found")
+    fun executeSql(dataSource: DataSource, sql: String) {
         val conn = DatabaseUtils.getConnection(dataSource)
         conn.use {
             conn.prepareStatement(sql).executeUpdate()
         }
     }
 
-    fun executeSqlFile(dataSource: DataSource?, file: String) {
-        if(dataSource == null) throw Exception("Data source not found")
+    fun executeSqlFile(dataSource: DataSource, file: String) {
         val conn = DatabaseUtils.getConnection(dataSource)
         conn.use {
             val sqlFile = SqlFile(File("src/test/resources/database/$file"), "UTF-8")

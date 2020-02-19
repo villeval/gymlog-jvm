@@ -55,7 +55,7 @@ class UsersTest {
 
     @Before
     fun init() {
-        TestDbUtils.createSchema(gymlogDataSource, "gymlog_db")
+        TestDbUtils.createSchema(gymlogDataSource!!, "gymlog_db")
         TestDbUtils.executeSql(gymlogDataSource, "CREATE TABLE IF NOT EXISTS $SETS_TABLE ($SET_ID_COLUMN varchar(100), $USER_ID_COLUMN varchar(100), $EXERCISE_COLUMN varchar(100), $WEIGHT_COLUMN decimal(10,1), $REPETITIONS_COLUMN integer, $CREATED_DATE_COLUMN timestamp);")
         TestDbUtils.executeSql(gymlogDataSource, "INSERT INTO $SETS_TABLE VALUES ('set id 1', 'user id 1', 'Squat', 102.5, 10, '2019-01-01 00:00:00');")
         TestDbUtils.executeSqlFile(gymlogDataSource, "create-auth-tables.sql")

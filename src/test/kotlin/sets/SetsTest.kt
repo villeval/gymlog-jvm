@@ -54,7 +54,7 @@ class SetsTest {
 
     @Before
     fun init() {
-        TestDbUtils.createSchema(gymlogDataSource, "gymlog_db")
+        TestDbUtils.createSchema(gymlogDataSource!!, "gymlog_db")
         TestDbUtils.executeSqlFile(gymlogDataSource, "create-sets-tables.sql")
         TestDbUtils.executeSqlFile(gymlogDataSource, "create-auth-tables.sql")
     }
