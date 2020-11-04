@@ -11,4 +11,4 @@ bash deploy-local.sh
 - The app outputs logs to stdout. Depending on your platform, you can utilize stdout directly or enable logging to file, mount log directory from container to host and configure logging to needed level
 
 ### TODO:
-- new front-end (for example Vue.js-based) or modifying and using the implementation from gymlog-js-project
+- front-end
