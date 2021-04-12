@@ -37,10 +37,4 @@ class TokenAuthenticationService(jwtSecret: String) {
         // successful retrieval of the user
         return if(username != null) AuthenticatedUser(username) else null
     }
-
-  /*  companion object {
-        private fun getSecret(): String {
-            return System.getenv("JWT_SECRET")
-        }
-    }*/
 }
